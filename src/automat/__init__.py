@@ -1,4 +1,3 @@
-import config
 import core
 import drivers
 import services

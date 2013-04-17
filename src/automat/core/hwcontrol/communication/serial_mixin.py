@@ -7,7 +7,8 @@ from _base import BaseCommunicationsMixIn
 
 #specify the smallest time between sending a command and
 #noticing a response
-DEFAULT_DELAY = 0.01
+DEFAULT_DELAY = 0.05
+DEFAULT_TIMEOUT = 1.0
 
 class Error(Exception):
     """Base class for exceptions in this module."""
@@ -22,7 +23,7 @@ class Error(Exception):
 
 class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
     """Partial Interface for RS232 remotely contolled instruments"""
-    def __init__(self,port,baudrate=9600, timeout=1,EOL='\r\n',delay=DEFAULT_DELAY,**kwargs):
+    def __init__(self,port,baudrate=9600, timeout=DEFAULT_TIMEOUT,EOL='\r\n',delay=DEFAULT_DELAY,**kwargs):
         #translate escaped string to ascii literals        
         if EOL == "\\n":
             EOL = '\n'
@@ -58,6 +59,10 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if strip_EOL:
             resp = resp.rstrip(self.EOL)
         return resp
+        
+    def _read_char(self):
+        c = self.ser.read(1)
+        return c
 
     def _exchange(self,command):
         "Relay a command and get the response"

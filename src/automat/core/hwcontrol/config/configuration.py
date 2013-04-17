@@ -10,7 +10,10 @@ except ImportError:
 from   configobj import ConfigObj
 from   automat.core.filetools.directories        import fullpath, recur_mkdir
 import automat.core.hwcontrol.devices.loader     as device_loader
-import automat.core.hwcontrol.controllers.loader as controller_loader   
+import automat.core.hwcontrol.controllers.loader as controller_loader
+from   automat.core.threads.mutex import Mutex
+###############################################################################
+DEFAULT_MUTEX_TIMEOUT = 10 #seconds
 
 ###############################################################################
 class Configuration(ConfigObj):
@@ -27,8 +30,10 @@ class Configuration(ConfigObj):
         self._setup_paths()
         #convert values
         self._convert_values()
-        #for storing loaded device drivers         
+        #for storing loaded device drivers
         self._device_cache = OrderedDict()
+        #for storing mutexes on device resources
+        self._device_mutexes = {}
         #for storing loaded controller interfaces
         self._controller_cache = OrderedDict()
 
@@ -64,10 +69,23 @@ class Configuration(ConfigObj):
     def load_device(self, handle):
         "load a device and it's dependencies (recursively)"
         #avoid loading the device again if it is in the cache
-        if self._device_cache.has_key(handle):         
+        if self._device_cache.has_key(handle):
+            mutex = self._device_mutexes.get(handle)
+            if not mutex is None:
+                mutex.acquire()
             return self._device_cache[handle]
         settings = self._load_device_settings(handle)
+        #implement a mutex if configured
+        mutex = None
+        mutex_settings = settings.pop('mutex', None)
+        if not mutex_settings is None:
+            name    = mutex_settings.get('name',handle) #default to handle if not specified
+            timeout = mutex_settings.get('timeout', DEFAULT_MUTEX_TIMEOUT)
+            mutex   = Mutex(name=name, default_timeout=timeout)
+            mutex.acquire()
+            self._device_mutexes[handle] = mutex
         device = device_loader.load_device(**settings)
+        device._mutex = mutex #attach the mutex
         self._device_cache[handle] = device
         return device
 

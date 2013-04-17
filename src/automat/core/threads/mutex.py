@@ -6,13 +6,15 @@ import os, fcntl, threading, tempfile, time
 
 DEFAULT_PATH = tempfile.gettempdir()
 SLEEP_TIME = 0.01
+LOCKFILE_PREFIX = "AUTOMAT_MUTEX"
 ###############################################################################
 class Mutex(object):
     _threadlocks = {} #cache thread locks by name
-    def __init__(self, name, path = DEFAULT_PATH):
+    def __init__(self, name, path = DEFAULT_PATH, default_timeout = None):
         self.name = name
         self.path = path
-        fname = "MUTEX_%s" % name
+        self.default_timeout = default_timeout
+        fname = "%s_%s" % (LOCKFILE_PREFIX, name)
         self._lockfile_name = os.sep.join((path,fname)) 
         self._lockfile = None
         threadlock = Mutex._threadlocks.get(name)
@@ -21,6 +23,8 @@ class Mutex(object):
         self._threadlock = threadlock
 
     def acquire(self, timeout = None):
+        if timeout is None:
+            timeout = self.default_timeout
         if self._lockfile is None:
             self._lockfile = open(self._lockfile_name,'w')
         has_threadlock = False

@@ -5,7 +5,7 @@ try:
     from   collections import OrderedDict
 except ImportError:
     #for older python version, use drop in substitue
-    from automat.substitutes.ordered_dict import OrderedDict   
+    from automat.substitutes.ordered_dict import OrderedDict
 
 from   configobj import ConfigObj
 from   automat.core.filetools.directories        import fullpath, recur_mkdir

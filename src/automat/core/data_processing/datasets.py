@@ -1,7 +1,6 @@
 ###############################################################################
 import shelve, copy
 import numpy
-import yaml
 ###############################################################################
 class DataSet(object):
     """A class which indexes sequences by names
@@ -86,7 +85,7 @@ class DataSet(object):
     def to_yaml(self,level=0, indent=2, newline='\n'):
         return newline.join(self.to_yaml_lines(level=level,indent=indent))
     def to_yaml_lines(self, level=0, indent=2):
-        "convert the dataset to a YAML specification"                
+        "convert the dataset to a YAML specification"               
         lines = []
         #output the metadata
         md = self._metadata        
@@ -184,6 +183,7 @@ class DataSet(object):
         """Class factory function which builds a dataset obj from a YAML 
            specification
         """
+        import yaml #require only if used
         spec = yaml.load(yaml_text)
         cls.from_dict(spec)
         

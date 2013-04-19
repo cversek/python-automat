@@ -39,6 +39,7 @@ class Mutex(object):
                 fcntl.lockf(self._lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB) #might throw IOError
                 #we have both locks now
                 info = "acquired by PID %s at %s" % (os.getpid(), time.time())
+                self._lockfile.truncate(0) #clean up after last thread
                 self._lockfile.write(info) #tell them who you are
                 self._lockfile.flush()
                 return
@@ -49,13 +50,22 @@ class Mutex(object):
                 time.sleep(SLEEP_TIME)
 
     def release(self):
-        info = ", released at %s" % (time.time(),)
+        info = ", released at %s\n" % (time.time(),)
         #release process lock first
         self._lockfile.write(info)
         self._lockfile.flush()
         fcntl.lockf(self._lockfile, fcntl.LOCK_UN)
         #now release the thread lock
         self._threadlock.release()
+        
+    #implement Python 'with' statement interface
+    def __enter__(self):
+        #set things up
+        self.acquire() #grab the lock on 'with' entrance
+        
+    def __exit__(self, type, value, traceback):
+        #tear things down
+        self.release() #release on 'with' exit
 
 ################################################################################
 # TEST CODE

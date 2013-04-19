@@ -70,9 +70,9 @@ class Configuration(ConfigObj):
         "load a device and it's dependencies (recursively)"
         #avoid loading the device again if it is in the cache
         if self._device_cache.has_key(handle):
-            mutex = self._device_mutexes.get(handle)
-            if not mutex is None:
-                mutex.acquire()
+#            mutex = self._device_mutexes.get(handle)
+#            if not mutex is None:
+#                mutex.acquire()
             return self._device_cache[handle]
         settings = self._load_device_settings(handle)
         #implement a mutex if configured
@@ -82,7 +82,6 @@ class Configuration(ConfigObj):
             name    = mutex_settings.get('name',handle) #default to handle if not specified
             timeout = mutex_settings.get('timeout', DEFAULT_MUTEX_TIMEOUT)
             mutex   = Mutex(name=name, default_timeout=timeout)
-            mutex.acquire()
             self._device_mutexes[handle] = mutex
         device = device_loader.load_device(**settings)
         device._mutex = mutex #attach the mutex

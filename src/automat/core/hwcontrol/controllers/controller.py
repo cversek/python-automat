@@ -1,6 +1,10 @@
 ###############################################################################
 import Queue, threading
 from automat.core.threads.interruptible_thread import InterruptibleThread, AbortInterrupt
+try:
+    from collections import OrderedDict
+except ImportError:
+    from yes_o2ab.support.odict import OrderedDict
 ###############################################################################
 
 ###############################################################################
@@ -15,18 +19,18 @@ class Controller:
                  metadata            = None,
                  ):
         if devices is None:
-            devices = {}
+            devices = OrderedDict()
         self.devices = devices
         if controllers is None:
-            controllers = {}
+            controllers = OrderedDict()
         self.controllers = controllers
         #settings relevant to the control process
         if configuration is None:
-            configuration = {}
+            configuration = OrderedDict()
         self.configuration = configuration
         #miscellaneous information
         if metadata is None:
-            metadata = {}
+            metadata = OrderedDict()
         self.metadata = metadata
         #self.configure(**kwargs) #apply remaining arguments to the configuration, overwriting defaults selectively
         
@@ -83,7 +87,10 @@ class Controller:
         self.thread_init(event_queue = self.event_queue, stop_event = self.stop_event, abort_event = self.abort_event)
 
     def thread_isAlive(self):
-        return self.thread.isAlive()
+        if not self.thread is None:
+            return self.thread.isAlive()
+        else:
+            return False
 
     def set_devices(self,**kwargs):
         for key, val in kwargs.items():

@@ -34,7 +34,8 @@ class Mutex(object):
                 #first try acquiring the thread lock (within one process)
                 has_threadlock = self._threadlock.acquire(False) #False means don't block
                 if not has_threadlock:
-                    raise IOError("could not obtain the thread lock")
+                    curr_thread = threading.current_thread()
+                    raise RuntimeError("could not obtain the thread lock in thread: %s" % curr_thread.name)
                 #next try to obtain the process lock (lockfile implementation)
                 fcntl.lockf(self._lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB) #might throw IOError
                 #we have both locks now

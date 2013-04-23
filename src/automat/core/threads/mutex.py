@@ -2,11 +2,13 @@
     and inter-thread)
 """
 ###############################################################################
-import os, fcntl, threading, tempfile, time
+import os, fcntl, threading, tempfile, time, pwd, grp, getpass
 
 DEFAULT_PATH = tempfile.gettempdir()
 SLEEP_TIME = 0.01
+LOCKFILE_SUBDIR = "Automat"
 LOCKFILE_PREFIX = "AUTOMAT_MUTEX"
+
 ###############################################################################
 class Mutex(object):
     _threadlocks = {} #cache thread locks by name
@@ -14,8 +16,19 @@ class Mutex(object):
         self.name = name
         self.path = path
         self.default_timeout = default_timeout
+        username = getpass.getuser()
+        subdirname = "%s_%s" % (LOCKFILE_SUBDIR, username)
+        self._lockfile_subdir = os.sep.join((path,subdirname))
+        if not os.path.exists(self._lockfile_subdir):
+            os.mkdir(self._lockfile_subdir)
+            #change the permissions and change the group
+            uid = os.getuid()
+            gid = grp.getgrnam("automat").gr_gid
+            os.chown(self._lockfile_subdir, uid, gid)
+            os.chmod(self._lockfile_subdir, 0o777) #FIXME this may be insecure
+            
         fname = "%s_%s" % (LOCKFILE_PREFIX, name)
-        self._lockfile_name = os.sep.join((path,fname)) 
+        self._lockfile_name = os.sep.join((self._lockfile_subdir,fname)) 
         self._lockfile = None
         threadlock = Mutex._threadlocks.get(name)
         if threadlock is None: #unique name
@@ -27,6 +40,11 @@ class Mutex(object):
             timeout = self.default_timeout
         if self._lockfile is None:
             self._lockfile = open(self._lockfile_name,'w')
+            #change the permissions and change the group
+            uid = os.getuid()
+            gid = grp.getgrnam("automat").gr_gid
+            os.chown(self._lockfile_name, uid, gid)
+            os.chmod(self._lockfile_name, 0o777) #FIXME this may be insecure
         has_threadlock = False
         t0 = time.time()
         while True:

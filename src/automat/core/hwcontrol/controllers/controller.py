@@ -212,13 +212,13 @@ class Controller:
     def _thread_check_abort_event(self):
         """use to synchronize forced thread shutdown
            raises AbortInterupt if the abort_event has been set"""
-        self._require_controller_modes(['running_as_thread','running_as_blocking_call'])
-        self.thread.check_abort_event()
+        self._require_controller_modes('thread_initialized')
+        return self.thread.check_abort_event()
         
     def _thread_abort_breakout_point(self):
         """use to synchronize forced thread shutdown
            raises AbortInterupt if the abort_event has been set"""
-        self._require_controller_modes(['running_as_thread','running_as_blocking_call'])
+        self._require_controller_modes('thread_initialized')
         self.thread.abort_breakout_point()
         
     def _thread_check_stop_event(self):

@@ -84,6 +84,9 @@ class Controller:
 
     def thread_reset(self):
         self.thread_shutdown()
+        #clear any events
+        self.stop_event.clear()
+        self.abort_event.clear()
         self.thread_init(event_queue = self.event_queue, stop_event = self.stop_event, abort_event = self.abort_event)
 
     def thread_isAlive(self):

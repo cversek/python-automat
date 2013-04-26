@@ -21,11 +21,11 @@ class Mutex(object):
         self._lockfile_subdir = os.sep.join((path,subdirname))
         if not os.path.exists(self._lockfile_subdir):
             os.mkdir(self._lockfile_subdir)
-            #change the permissions and change the group
-            uid = os.getuid()
-            gid = grp.getgrnam("automat").gr_gid
-            os.chown(self._lockfile_subdir, uid, gid)
-            os.chmod(self._lockfile_subdir, 0o777) #FIXME this may be insecure
+            #FIXME change the permissions and change the group
+#            uid = os.getuid()
+#            gid = grp.getgrnam("automat").gr_gid
+#            os.chown(self._lockfile_subdir, uid, gid)
+#            os.chmod(self._lockfile_subdir, 0o777) #FIXME this may be insecure
             
         fname = "%s_%s" % (LOCKFILE_PREFIX, name)
         self._lockfile_name = os.sep.join((self._lockfile_subdir,fname)) 
@@ -40,11 +40,11 @@ class Mutex(object):
             timeout = self.default_timeout
         if self._lockfile is None:
             self._lockfile = open(self._lockfile_name,'w')
-            #change the permissions and change the group
-            uid = os.getuid()
-            gid = grp.getgrnam("automat").gr_gid
-            os.chown(self._lockfile_name, uid, gid)
-            os.chmod(self._lockfile_name, 0o777) #FIXME this may be insecure
+#            #FIXME change the permissions and change the group
+#            uid = os.getuid()
+#            gid = grp.getgrnam("automat").gr_gid
+#            os.chown(self._lockfile_name, uid, gid)
+#            os.chmod(self._lockfile_name, 0o777) #FIXME this may be insecure
         has_threadlock = False
         t0 = time.time()
         while True:

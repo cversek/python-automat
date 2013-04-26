@@ -8,17 +8,19 @@ PARTIAL = -1
 class Validator(object):
     "An extensible object that will substitute for a Pmw validator function"
     def __init__(self, 
-                    _min = None, 
-                    _max = None, 
-                    converter = float,
-                    ):
+                 _min = None, 
+                 _max = None, 
+                 converter = float,
+                 ):
         self._min = _min
         self._max = _max
         self.converter = converter
+        
     def convert(self, text):
         "converts the text to the appropriate type"
         val = self.converter(text)
         return val
+        
     def __call__(self, text):
         "signifies validity of text"
 #        #prevent from going over the length of the maximum

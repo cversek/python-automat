@@ -15,7 +15,6 @@ def load_controller(module,
                     controllers         = None,   #dependent subcontrollers by handle, <automat.core.hwcontrol.controllers.Controller> object
                     configuration       = None,   #controller configuration settings
                     metadata            = None,   #miscellaneous information                     
-                    interface_mode      = None,
                     **kwargs
                     ):
     mod = load_controller_module(module)
@@ -53,23 +52,13 @@ def load_controller(module,
     except AttributeError:
         pass
       
-    try:        
-        if interface_mode is None:
-            interface_mode = 'threaded'
-        
-        controller = None
-        try: #try to load through the 'get_interface' function first
-            controller = mod.get_interface(interface_mode = interface_mode,
-                                           devices        = devices,
-                                           controllers    = controllers, 
-                                           configuration  = configuration,
-                                           metadata       = metadata,
-                                          )
-        except AttributeError:
-            controller = mod.Interface(devices       = devices,
-                                       controllers   = controllers, 
-                                       configuration = configuration,
-                                       metadata      = metadata,
+    try:         
+        #try to load with extra keyword arguments first
+        controller = mod.get_interface(devices        = devices,
+                                       controllers    = controllers, 
+                                       configuration  = configuration,
+                                       metadata       = metadata,
+                                       **kwargs
                                       )
         controller.module_path = module    #cache this dynamic information
     except:
@@ -77,6 +66,9 @@ def load_controller(module,
         raise
     return controller
 
+################################################################################
+# TEST CODE
+################################################################################
 if __name__ == "__main__":
-    temp = load_device('potentiostat','solartron','SI1287')
+    pass
 

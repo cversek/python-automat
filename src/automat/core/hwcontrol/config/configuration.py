@@ -115,23 +115,23 @@ class Configuration(ConfigObj):
         return settings
         
 
-    def load_controller(self, handle, interface_mode = None):
+    def load_controller(self, handle):
         #avoid loading the controller again if it is in the cache
         if self._controller_cache.has_key(handle): 
             #print "loading controller '%s' from cache" % handle        
             return self._controller_cache[handle]
         #print "loading controller '%s' from settings" % handle        
         settings = self._load_controller_settings(handle)
-        module           = settings.get('module', None)
-        devices          = settings.get('devices',None)
-        subcontrollers   = settings.get('controllers',None)
-        configuration    = settings.get('configuration',None)
+        module           = settings.pop('module', None)
+        devices          = settings.pop('devices',None)
+        subcontrollers   = settings.pop('controllers',None)
+        configuration    = settings.pop('configuration',None)
         
-        controller = controller_loader.load_controller(interface_mode = interface_mode,
-                                                       module         = module,
+        controller = controller_loader.load_controller(module         = module,
                                                        devices        = devices, 
                                                        controllers    = subcontrollers, 
                                                        configuration  = configuration,
+                                                       **settings #pass the remaining settings on
                                                       )
         
         #cache the controller        

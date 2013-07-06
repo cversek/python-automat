@@ -1,13 +1,13 @@
 class Device(object):
     """A virtual base class for specifying common behavior of test Intsrumentation"""
     def identify(self):
-        raise NotImplementedError
+        raise NotImplementedError("in class %r" % self.__class__)
     def initialize(self):
-        raise NotImplementedError
+        raise NotImplementedError("in class %r" % self.__class__)
     def shutdown(self):
-        raise NotImplementedError
+        raise NotImplementedError("in class %r" % self.__class__)
     def test(self):
-        raise NotImplementedError
+        raise NotImplementedError("in class %r" % self.__class__)
 
 class StubDevice(object):
     """A stubbed out Device"""

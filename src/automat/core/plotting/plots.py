@@ -70,7 +70,9 @@ class Plot(object):
         attrs['topaxis_xticklabels'] = topaxis_xticklabels
         attrs['topaxis_xlabel']      = topaxis_xlabel
         attrs['topaxis_xbuffer']     = topaxis_xbuffer 
-        self.attrs = attrs 
+        self.attrs = attrs
+        #signal the state when "plot" method has been called once
+        self._has_been_plotted = False  
 
     def configure(self, **kwargs):
         """ Allow attributes of the plot to be changed"""
@@ -95,7 +97,11 @@ class Plot(object):
         else:
             plot_func = ax1.plot
         plot_func(X, Y, **kwargs)
+        self._has_been_plotted = True
         return figure
+        
+    def has_been_plotted(self):
+        return self._has_been_plotted
 
     def _setup_figure(self, figure, subplot, axis):
         """create figure if not supplied; apply the formatting
@@ -319,6 +325,8 @@ class MultiPlot(Plot):
             self._post_plot_adjustments(figure,ax1,ax2,x_min=x_min,x_max=x_max,y_min=y_min,y_max=y_max)
         except ValueError: #on empty data
             self._post_plot_adjustments(figure,ax1,ax2)
+            
+        self._has_been_plotted = True
         return figure
 
 ###############################################################################

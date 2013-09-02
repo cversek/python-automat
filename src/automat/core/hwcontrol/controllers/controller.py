@@ -6,12 +6,7 @@ try:
 except ImportError:
     from yes_o2ab.support.odict import OrderedDict
 ###############################################################################
-
-###############################################################################
-class Controller:
-    """A threaded hardware interface that is to send events through to their 'event_queue' using the 'send_event' method"""
-    #--------------------------------------------------------------------------
-    # Initialization/Shutdown methods - called externally in various program phases 
+class BaseController(object):
     def __init__(self, 
                  devices             = None, #should be a dictionary containing only dependent device interfaces 
                  controllers         = None, #should be a ductionary containing only dependent controller interfaces
@@ -42,55 +37,10 @@ class Controller:
         #maintain state of the controller  
         self._controller_mode_set = set(['object_initialized'])
         #holds information relevant to the controllers context
-        self.context = {}  
-
-    def thread_init(self,  
-                    event_queue = None,  #to pass back controller events
-                    stop_event  = None,  #to synchronize controlled exit
-                    abort_event = None,  #to synchronize forced exit
-                   ):
-        self._require_controller_modes('object_initialized')
-        if event_queue is None:
-            event_queue = Queue.Queue()
-        self.event_queue = event_queue
-        if stop_event is None:
-            stop_event = threading.Event()
-        self.stop_event  = stop_event        
-        if abort_event is None:
-            abort_event = threading.Event()
-        self.abort_event = abort_event        
-        self.thread = InterruptibleThread(target = self.main,        #this ties the thread into the overloadable execution path 
-                                          stop_event  = stop_event, 
-                                          abort_event = abort_event
-                                         )
-        #cascade thread initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
-            subcontroller.thread_init(event_queue = event_queue, stop_event = stop_event, abort_event = abort_event)           
-        self._controller_mode_set.discard('thread_shutdown')        
-        self._controller_mode_set.add('thread_initialized')
-
-    def thread_shutdown(self):
-        try:    
-            self.thread.shutdown()  #from InterruptibleThread
-        except RuntimeError:  #when thread has not been run yet
-            pass       
-        #cascade device initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
-            subcontroller.thread_shutdown()  
-        self._controller_mode_set.discard('running_as_thread')
-        self._controller_mode_set.discard('running_as_blocking_call')
-        self._controller_mode_set.discard('thread_initialized')
-        self._controller_mode_set.add('thread_shutdown')   
-
-    def thread_reset(self):
-        self.thread_shutdown()
-        self.thread_init(event_queue = self.event_queue, stop_event = self.stop_event, abort_event = self.abort_event)
-
-    def thread_isAlive(self):
-        if not self.thread is None:
-            return self.thread.isAlive()
-        else:
-            return False
+        self.context = {}
+        
+    def initialize(self, **kwargs):
+        self.initialize_devices()
 
     def set_devices(self,**kwargs):
         for key, val in kwargs.items():
@@ -155,6 +105,110 @@ class Controller:
         self._controller_mode_set.discard('devices_initialized')        
         self._controller_mode_set.add('devices_shutdown')
     
+    def shutdown(self):
+        self.shutdown_devices()
+
+    def reset(self):
+        self.shutdown()       
+        self.initialize_devices()    
+        
+    #--------------------------------------------------------------------------
+    # Python Builtin Methods
+    def __repr__(self):
+        #overloaded from Thread parent class
+        s = "<BaseController: %s.%s>" % (self.module_path, self.__class__)
+        return s
+        
+    def __del__(self):
+        try:
+            self.shutdown()
+        except AttributeError:  #ignore already collected garbage
+            pass
+
+###############################################################################
+class Controller(BaseController):
+    """A threaded hardware interface that is to send events through to their 'event_queue' using the 'send_event' method"""
+    #--------------------------------------------------------------------------
+    # Initialization/Shutdown methods - called externally in various program phases 
+    def __init__(self, 
+                 devices             = None, #should be a dictionary containing only dependent device interfaces 
+                 controllers         = None, #should be a dictionary containing only dependent controller interfaces
+                 configuration       = None,
+                 metadata            = None,
+                 ):
+        BaseController.__init__(self,
+                                devices       = devices, 
+                                controllers   = controllers,
+                                configuration = configuration,
+                                metadata      = metadata, 
+                               )
+        #objects for thread execution and communication
+        self.thread      = None
+        self.event_queue = None
+        self.stop_event  = None
+        self.abort_event = None
+        #maintain state of the controller  
+        self._controller_mode_set = set(['object_initialized'])
+        #holds information relevant to the controllers context
+        self.context = {}
+        
+    def initialize(self, **kwargs):
+        self.thread_init(**kwargs)
+        self.initialize_devices()
+
+    def thread_init(self,  
+                    event_queue = None,  #to pass back controller events
+                    stop_event  = None,  #to synchronize controlled exit
+                    abort_event = None,  #to synchronize forced exit
+                   ):
+        self._require_controller_modes('object_initialized')
+        if event_queue is None:
+            event_queue = Queue.Queue()
+        self.event_queue = event_queue
+        if stop_event is None:
+            stop_event = threading.Event()
+        self.stop_event  = stop_event        
+        if abort_event is None:
+            abort_event = threading.Event()
+        self.abort_event = abort_event        
+        self.thread = InterruptibleThread(target = self.main,        #this ties the thread into the overloadable execution path 
+                                          stop_event  = stop_event, 
+                                          abort_event = abort_event
+                                         )
+        #set daemonic property so thread does not block application exit
+        self.thread.daemon = True
+        #cascade thread initializations into the controller dependencies
+        for handle, subcontroller in self.controllers.items():
+            subcontroller.thread_init(event_queue = event_queue, stop_event = stop_event, abort_event = abort_event)           
+        self._controller_mode_set.discard('thread_shutdown')        
+        self._controller_mode_set.add('thread_initialized')
+
+    def thread_shutdown(self):
+        try:    
+            self.thread.shutdown()  #from InterruptibleThread
+        except RuntimeError:  #when thread has not been run yet
+            pass       
+        #cascade device initializations into the controller dependencies
+        for handle, subcontroller in self.controllers.items():
+            subcontroller.thread_shutdown()  
+        self._controller_mode_set.discard('running_as_thread')
+        self._controller_mode_set.discard('running_as_blocking_call')
+        self._controller_mode_set.discard('thread_initialized')
+        self._controller_mode_set.add('thread_shutdown')   
+
+    def thread_reset(self):
+        self.thread_shutdown()
+        #clear any events
+        self.stop_event.clear()
+        self.abort_event.clear()
+        self.thread_init(event_queue = self.event_queue, stop_event = self.stop_event, abort_event = self.abort_event)
+
+    def thread_isAlive(self):
+        if not self.thread is None:
+            return self.thread.isAlive()
+        else:
+            return False
+    
     def stop(self):
         self.stop_event.set()
     
@@ -162,8 +216,9 @@ class Controller:
         self.abort_event.set()
     
     def shutdown(self):
-        self.shutdown_devices()
+        self.abort()
         self.thread_shutdown()
+        self.shutdown_devices()
 
     def reset(self):
         self.shutdown()
@@ -181,9 +236,11 @@ class Controller:
         
     def start(self):
         "run the 'main' method in a separate thread, this call should not block"
-        if not 'devices_initialized' in self._controller_mode_set:
+        if not set(('devices_initialized','thread_initialized')).issubset(self._controller_mode_set):
+            self.initialize()
+        elif not 'devices_initialized' in self._controller_mode_set:
             self.initialize_devices()
-        if not 'thread_initialized' in self._controller_mode_set:
+        elif not 'thread_initialized' in self._controller_mode_set:
             self.thread_init()
         self._require_controller_modes('thread_initialized','devices_initialized')
         self._controller_mode_set.add('running_as_thread')
@@ -199,10 +256,13 @@ class Controller:
         "join the thread started for the 'main' method"
         self._require_controller_modes('thread_initialized','devices_initialized')
         self.thread.join() #will run self.main as the target in a seperate thread_init
+        
     #--------------------------------------------------------------------------
     # Helper Methods - call from within child class
     def _send_event(self, event_type, content):
         "use within child class to send events to the queue"
+        #debug
+        print event_type, content
         self._require_controller_modes('thread_initialized')
         event = (event_type, content)  #events have standard 2-tuple form
         self.event_queue.put(event)
@@ -210,13 +270,13 @@ class Controller:
     def _thread_check_abort_event(self):
         """use to synchronize forced thread shutdown
            raises AbortInterupt if the abort_event has been set"""
-        self._require_controller_modes(['running_as_thread','running_as_blocking_call'])
-        self.thread.check_abort_event()
+        self._require_controller_modes('thread_initialized')
+        return self.thread.check_abort_event()
         
     def _thread_abort_breakout_point(self):
         """use to synchronize forced thread shutdown
            raises AbortInterupt if the abort_event has been set"""
-        self._require_controller_modes(['running_as_thread','running_as_blocking_call'])
+        self._require_controller_modes('thread_initialized')
         self.thread.abort_breakout_point()
         
     def _thread_check_stop_event(self):
@@ -239,7 +299,7 @@ class Controller:
                     self._raise_error(msg)
                     
     def _raise_error(self, msg = "",exc = None):
-         raise ControllerError(controller = self, msg = msg, exc = exc)         
+         raise ControllerError(controller = self, msg = msg, exc = exc)      
         
     #--------------------------------------------------------------------------
     # Python Builtin Methods
@@ -247,6 +307,13 @@ class Controller:
         #overloaded from Thread parent class
         s = "<Controller: %s.%s>" % (self.module_path, self.__class__)
         return s
+        
+    def __del__(self):
+        try:
+            self.stop()
+            self.shutdown()
+        except AttributeError:  #ignore already collected garbage
+            pass
 
 #########################################################################################
 class NullController(Controller):

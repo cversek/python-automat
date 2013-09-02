@@ -70,9 +70,9 @@ class Configuration(ConfigObj):
         "load a device and it's dependencies (recursively)"
         #avoid loading the device again if it is in the cache
         if self._device_cache.has_key(handle):
-            mutex = self._device_mutexes.get(handle)
-            if not mutex is None:
-                mutex.acquire()
+#            mutex = self._device_mutexes.get(handle)
+#            if not mutex is None:
+#                mutex.acquire()
             return self._device_cache[handle]
         settings = self._load_device_settings(handle)
         #implement a mutex if configured
@@ -82,7 +82,6 @@ class Configuration(ConfigObj):
             name    = mutex_settings.get('name',handle) #default to handle if not specified
             timeout = mutex_settings.get('timeout', DEFAULT_MUTEX_TIMEOUT)
             mutex   = Mutex(name=name, default_timeout=timeout)
-            mutex.acquire()
             self._device_mutexes[handle] = mutex
         device = device_loader.load_device(**settings)
         device._mutex = mutex #attach the mutex
@@ -116,23 +115,23 @@ class Configuration(ConfigObj):
         return settings
         
 
-    def load_controller(self, handle, interface_mode = None):
+    def load_controller(self, handle):
         #avoid loading the controller again if it is in the cache
         if self._controller_cache.has_key(handle): 
             #print "loading controller '%s' from cache" % handle        
             return self._controller_cache[handle]
         #print "loading controller '%s' from settings" % handle        
         settings = self._load_controller_settings(handle)
-        module           = settings.get('module', None)
-        devices          = settings.get('devices',None)
-        subcontrollers   = settings.get('controllers',None)
-        configuration    = settings.get('configuration',None)
+        module           = settings.pop('module', None)
+        devices          = settings.pop('devices',None)
+        subcontrollers   = settings.pop('controllers',None)
+        configuration    = settings.pop('configuration',None)
         
-        controller = controller_loader.load_controller(interface_mode = interface_mode,
-                                                       module         = module,
+        controller = controller_loader.load_controller(module         = module,
                                                        devices        = devices, 
                                                        controllers    = subcontrollers, 
                                                        configuration  = configuration,
+                                                       **settings #pass the remaining settings on
                                                       )
         
         #cache the controller        

@@ -1,7 +1,6 @@
 ###############################################################################
 import shelve, copy
 import numpy
-import yaml
 ###############################################################################
 class DataSet(object):
     """A class which indexes sequences by names
@@ -13,64 +12,77 @@ class DataSet(object):
         elif names is None:
             names = ["f%d" % i for i in xrange(len(fields))]
         elif fields is None:
-            fields = [[] for x in xrange(len(names))]
+            empty = []
+            fields = [empty[:] for x in xrange(len(names))]
         else:
             assert len(names) == len(fields)
         #ensure that fields are lists
-        fields = map(list,fields)       
+        fields = map(list,fields)
         #cache the names to mantain ordering
-        self._names = names        
-        #build the underlying data storage structure        
+        self._names = names
+        #build the underlying data storage structure
         self._data = dict(zip(names,fields))
         #cache te metadata
         if not metadata:
             metadata = {}
-        self._metadata = metadata    
+        self._metadata = metadata
+        
     def __getitem__(self,indx):
         "allow index by name or column number"
         try: 
-            #attempt to index by name first        
+            #attempt to index by name first
             return self._data[indx]
         except KeyError:
             #might be an integer try fetching in order
             try:            
                 name = self._names[indx]
-                return self._data[name]            
+                return self._data[name]
             except (IndexError, TypeError):
                 #reraise as a key error
                 raise KeyError, indx
+    
     def get(self, key, value = None):
         return self._data.get(key, value)
+    
     def names(self):
         return self._names
+    
     def fields(self):
-        return self.get_fields_fromnames(self._names)  
+        return self.get_fields_fromnames(self._names)
+    
     def get_records(self):
         "obtain the data as records, warning: the empty cells are filled out with None objects"
         fields = self.fields()
         records = map(None,*fields)
         return records
+    
     def get_fields_fromnames(self,names):
         out = []        
         for name in names:
             out.append(self.__getitem__(name))
         return out
+    
     def get_metadata(self,key=None, default=None):
         if key is None:
             return self._metadata
         else:
             return self._metadata.get(key, default)
+    
     def append_record(self,record):
         assert len(record) == len(self._names), "the record must contain as many entries as there are field"
         fields = self.fields()
         for item,field in zip(record,fields):
             field.append(item)
+    
     def set_metadata(self, key, val):
         self._metadata[key] = val
+    
     def update_metadata(self, overrides):
         self._metadata.update(overrides)
+    
     def to_array(self):
         return numpy.array(self.get_records())
+    
     def to_dict(self):
         "convert the dataset to a dict, copies all data"
         return copy.deepcopy(self._data) 
@@ -85,8 +97,9 @@ class DataSet(object):
 
     def to_yaml(self,level=0, indent=2, newline='\n'):
         return newline.join(self.to_yaml_lines(level=level,indent=indent))
+    
     def to_yaml_lines(self, level=0, indent=2):
-        "convert the dataset to a YAML specification"                
+        "convert the dataset to a YAML specification"
         lines = []
         #output the metadata
         md = self._metadata        
@@ -116,6 +129,7 @@ class DataSet(object):
         level -= 1        
         lines.extend(d_lines)
         return lines
+    
     def to_csv_file(self, filepath, sep=",",comment_char="#", newline="\n", column_header = True, embed_metadata=True):
         text  = self.to_csv(sep=sep, 
                             comment_char=comment_char,
@@ -134,6 +148,7 @@ class DataSet(object):
                                   embed_metadata=embed_metadata,
                                   )
         return newline.join(lines)
+    
     def to_csv_lines(self, sep=",", comment_char="#",column_header=True,embed_metadata=True):
         lines = []
         if embed_metadata:
@@ -165,7 +180,8 @@ class DataSet(object):
         fields  = [data[name] for name in names]         
         dataset = cls(fields, names=names, metadata=metadata)
         return dataset
-    @classmethod    
+    
+    @classmethod
     def from_shelf(cls, filename):
         """Class factory function which builds a dataset obj from a shelf database file
         """
@@ -179,11 +195,12 @@ class DataSet(object):
         dataset = cls(fields, names=names, metadata=metadata)
         return dataset  
           
-    @classmethod    
+    @classmethod
     def from_yaml(cls, yaml_text):
         """Class factory function which builds a dataset obj from a YAML 
            specification
         """
+        import yaml #require only if used
         spec = yaml.load(yaml_text)
         cls.from_dict(spec)
         

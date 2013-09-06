@@ -1,16 +1,20 @@
+try:
+    from collections import OrderedDict
+except ImportError:
+    from automat.substitutes.ordered_dict import OrderedDict
+    
 from Tkinter import Frame, Label
 import Pmw
 import string
 
-###############################################################################
-
-
+################################################################################
 class EntryForm(Frame):
-
+    """ A Pmw-based widget for multiple entries with validation.
+    """
     def __init__(self,
                  parent=None,
                  title=None, 
-                 default_entry_state='normal',
+                 default_entry_state = 'normal',
                  default_labelpos = 'w',
                 ):
         Frame.__init__(self,parent)
@@ -19,7 +23,7 @@ class EntryForm(Frame):
         if not title is None:
             Label(self,text=title).pack(side='top', fill='x')
         self.fields     = []
-        self.field_dict = {} 
+        self.field_dict = OrderedDict()
 
     def new_field(self,name,**kwargs):
         #use default state if not specified
@@ -30,7 +34,7 @@ class EntryForm(Frame):
         #construct entry field widget
         field = Pmw.EntryField(self,**kwargs)
         self.fields.append(field)            #cache in order
-        self.field_dict[name] = field  #lookup by name
+        self.field_dict[name] = field        #lookup by name
 
     def __getitem__(self,key):
         field = self.get_field_widget(key)
@@ -71,9 +75,10 @@ class EntryForm(Frame):
         #prevent entry for all the fields in the form 
         for field in self.fields:
             field.component('entry').config(state = 'normal')
-
-                                  
-
+            
+################################################################################
+# TEST CODE
+################################################################################
 if __name__ == "__main__":
     root = Pmw.initialise()
     VF = EntryForm(root, default_entry_state = 'readonly')

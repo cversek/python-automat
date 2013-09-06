@@ -45,3 +45,15 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
     # The process is now daemonized, redirect standard file descriptors.
     detach(stdin=stdin, stdout=stdout, stderr=stderr)
     
+def ignore_KeyboardInterrupt():
+    """
+    Sets the response to a SIGINT (keyboard interrupt) to ignore.
+    """
+    return signal.signal(signal.SIGINT,signal.SIG_IGN)
+
+def notice_KeyboardInterrupt():
+    """
+    Sets the response to a SIGINT (keyboard interrupt) to the
+    default (raise KeyboardInterrupt).
+    """
+    return signal.signal(signal.SIGINT, signal.default_int_handler)

@@ -72,7 +72,7 @@ class Plot(object):
         attrs['topaxis_xbuffer']     = topaxis_xbuffer 
         self.attrs = attrs
         #signal the state when "plot" method has been called once
-        self._has_been_plotted = False  
+        self._has_been_plotted = False
 
     def configure(self, **kwargs):
         """ Allow attributes of the plot to be changed"""

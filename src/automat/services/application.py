@@ -34,6 +34,7 @@ class ApplicationBase(object):
                  output_stream   = sys.stdout,
                  error_stream    = sys.stderr,
                  textbox_printer = lambda text: None,
+                 used_controllers = [],
                 ):
         self._ignore_device_errors = ignore_device_errors
         self._output_stream        = output_stream
@@ -44,6 +45,7 @@ class ApplicationBase(object):
         self._devices     = OrderedDict()
         self._controllers = OrderedDict()
         self._metadata    = OrderedDict()
+        self._used_controllers = used_controllers
         #create an event for synchronize forced shutdown
         self._abort_event = threading.Event()
 
@@ -62,15 +64,15 @@ class ApplicationBase(object):
         if used_controllers is None:
             used_controllers = []
         for name in used_controllers:
-            #self._print_comment("\tLoading and initializing controller '%s'..." % name)
+            #self.print_comment("\tLoading and initializing controller '%s'..." % name)
             controller = self._load_controller(name)
             controller.initialize()
-            self._print_comment("\tcompleted")
+            #self.print_comment("\tcompleted")
  
     def setup_textbox_printer(self, textbox_printer):
         self._textbox_printer = textbox_printer
 
-    def _print_comment(self, text, eol = '\n', comment_prefix = '#'):
+    def print_comment(self, text, eol = '\n', comment_prefix = '#'):
         buff = ""
         if eol:
             lines = text.split(eol)
@@ -83,40 +85,40 @@ class ApplicationBase(object):
     
     def _print_log_msg(self,msg):
         stream_print(msg, stream = self._log_stream)
-        self._print_comment("Logged: " + msg)        
+        self.print_comment("Logged: " + msg)        
               
     def _load_device(self, handle):
-        self._print_comment("Loading device '%s'..." % handle)
+        self.print_comment("Loading device '%s'..." % handle)
         try:
             device = self._config.load_device(handle)
             self._devices[handle] = device   #cache the device
-            self._print_comment("    success.")
+            self.print_comment("    success.")
             return device
         except Exception, exc:
             settings = self._config['devices'].get(handle, None)
             if settings is None:
-                error_msg = "missing settings for device in config file '%s'" % self.config['config_filepath']
+                error_msg = "missing settings for device in config file '%s'" % self._config['config_filepath']
             else:
                 error_msg = "bad configuration"
             exc = DeviceError(error_msg = error_msg, 
                               handle    = handle, 
                               settings  = settings, 
                               exc       = exc)
-            if not self.ignore_device_errors:
+            if not self._ignore_device_errors:
                 raise exc
             else:
                 warn("ignoring following error:\n---\n%s\n---" % exc, RuntimeWarning)
                 
     def _load_controller(self, name):
-        self._print_comment("Loading controller '%s'..." % name)
+        #self.print_comment("Loading controller '%s'..." % name)
         try:
             try:
                 controller = self._config.load_controller(name)
                 self._controllers[name] = controller
-                self._print_comment("    success.")
+                #self.print_comment("    success.")
                 return controller
             except Exception, exc:
-                self._print_comment("    failed loading controller '%s' with exception: %s" % (name, exc))
+                self.print_comment("    failed loading controller '%s' with exception: %s" % (name, exc))
                 if not self._ignore_device_errors:
                     raise exc
                 else:
@@ -125,12 +127,7 @@ class ApplicationBase(object):
             pass
 
 ################################################################################
-try:
-    #first try new style >= 0.12 interactive shell
-    from IPython.frontend.terminal.embed import InteractiveShellEmbed as IPYTHON_SHELL
-except ImportError:
-    #substitue old-style interactive shell
-    from IPython.Shell import IPShellMatplotlib as IPYTHON_SHELL
+
 
 class ShellApplication(ApplicationBase):
     def __init__(self, **kwargs):
@@ -159,7 +156,11 @@ class ShellApplication(ApplicationBase):
         except KeyError:
             pass
 
-    def start_shell(self, msg = "", extra_modules = ['time',]):
+    def start_shell(self,
+                    msg = "", 
+                    extra_modules = ['time',],
+                    pylab_mode = False,
+                   ):
         status_msg = []
         status_msg.append(msg)
         
@@ -199,9 +200,25 @@ class ShellApplication(ApplicationBase):
         status_msg.append("-- Hit Ctrl-D to exit. --")
         status_msg = '\n'.join(status_msg) 
         #start the shell
+#        try:
+#            from IPython.frontend.terminal.ipapp import TerminalIPythonApp
+#            app = TerminalIPythonApp.instance()
+#            app.initialize(argv = argv, user_ns = self._user_ns)
+#            app.start()
+#        except ImportError: #FIXME support older versions
         try:
-            self._ipshell = IPYTHON_SHELL(user_ns = self._user_ns, banner1 = status_msg) #FIXME change made for ipython >= 0.13
-            self._ipshell.mainloop() #FIXME change made for ipython >= 0.13
-        except TypeError: #FIXME support older versions
+            #first try new style >= 0.12 interactive shell
+            from IPython.frontend.terminal.embed import InteractiveShellEmbed
+            #FIXME change made for ipython >= 0.13
+            self._ipshell = InteractiveShellEmbed(
+                                                  user_ns = self._user_ns,
+                                                  banner1 = status_msg,    #FIXME change made for ipython >= 0.13
+                                                 )
+            if pylab_mode is True:
+                self._ipshell.enable_pylab()
+            self._ipshell.mainloop()
+        except ImportError:
+            #substitue old-style interactive shell
+            from IPython.Shell import IPShellMatplotlib as IPYTHON_SHELL
             self._ipshell = IPYTHON_SHELL(user_ns = self._user_ns)
             self._ipshell.mainloop(banner = status_msg)

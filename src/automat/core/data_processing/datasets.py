@@ -69,10 +69,15 @@ class DataSet(object):
             return self._metadata.get(key, default)
     
     def append_record(self,record):
-        assert len(record) == len(self._names), "the record must contain as many entries as there are field"
+        assert len(record) == len(self._names), "the record must contain as many entries as there are fields"
         fields = self.fields()
         for item,field in zip(record,fields):
             field.append(item)
+            
+    def extend_records(self, records):
+        print len(records)
+        for record in records:
+            self.append_record(record)
     
     def set_metadata(self, key, val):
         self._metadata[key] = val

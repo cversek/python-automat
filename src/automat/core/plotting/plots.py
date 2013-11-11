@@ -147,27 +147,32 @@ class Plot(object):
         ax1.set_yscale(attrs['set_yscale'])
         if attrs['invert_yaxis']:
             ax1.invert_yaxis()
-        #setup the power limits under which NOT to use scientific notation for ticks        
+        #setup the power limits under which NOT to use scientific notation for ticks
         xticks_powerlimits = attrs['xticks_powerlimits']
-        yticks_powerlimits = attrs['yticks_powerlimits']        
+        yticks_powerlimits = attrs['yticks_powerlimits']
         if not xticks_powerlimits is None:
             ax1.xaxis.major.formatter.set_powerlimits(xticks_powerlimits)
         if not yticks_powerlimits is None:
-            ax1.yaxis.major.formatter.set_powerlimits(yticks_powerlimits)        
-        #apply the axis scaling        
+            ax1.yaxis.major.formatter.set_powerlimits(yticks_powerlimits)
+        #apply the axis scaling
         ax1.axis(attrs['axis_scaling'])
         return figure,ax1,ax2
 
-    def _post_plot_adjustments(self,figure,ax1,ax2,
-                                   x_min=None,
-                                   x_max=None,
-                                   y_min=None,
-                                   y_max=None,
+    def _post_plot_adjustments(self,
+                               figure,
+                               ax1   = None,
+                               ax2   = None,
+                               x_min = None,
+                               x_max = None,
+                               y_min = None,
+                               y_max = None,
                               ):
         """make formatting adjustments that depend on knowing
            the plotted data
         """
         attrs = self.attrs
+        if ax1 is None:
+            ax1 = figure.axes[0]
         #compute the left and right x axis limits
         if not (x_min is None or x_max is None):
             xbuff = max(attrs['axis_xbuffer'], attrs['topaxis_xbuffer']) 

@@ -262,7 +262,7 @@ class Controller(BaseController):
     def _send_event(self, event_type, content):
         "use within child class to send events to the queue"
         #debug
-        print event_type, content
+        #print event_type, content
         self._require_controller_modes('thread_initialized')
         event = (event_type, content)  #events have standard 2-tuple form
         self.event_queue.put(event)

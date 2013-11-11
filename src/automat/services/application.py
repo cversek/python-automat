@@ -125,6 +125,15 @@ class ApplicationBase(object):
                     warn("ignoring following error:\n---\n%s\n---" % exc, RuntimeWarning)
         except KeyError:
             pass
+            
+    def _abort_all_controllers(self):
+        try:
+            controllers_dict = self._config['controllers']
+            for name in controllers_dict.keys():
+                controller = self._load_controller(name)
+                controller.abort()
+        except KeyError:
+            pass
 
 ################################################################################
 

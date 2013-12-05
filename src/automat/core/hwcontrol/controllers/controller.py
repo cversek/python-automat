@@ -1,10 +1,12 @@
 ###############################################################################
 import Queue, threading
 from automat.core.threads.interruptible_thread import InterruptibleThread, AbortInterrupt
+#Standard or substitute
+OrderedDict = None
 try:
     from collections import OrderedDict
 except ImportError:
-    from yes_o2ab.support.odict import OrderedDict
+    from automat.substitutes.ordered_dict import OrderedDict
 ###############################################################################
 class BaseController(object):
     def __init__(self, 

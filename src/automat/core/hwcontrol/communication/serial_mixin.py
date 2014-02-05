@@ -66,7 +66,6 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if self._debug:
             print "--> " + command,
         self._ser.write(command) #add the end of line to the command
-        self._ser.flushOutput()
         # FIXME a dirty hack to prevent hangups
         # maybe we should poll somehow?
         if self._delay:

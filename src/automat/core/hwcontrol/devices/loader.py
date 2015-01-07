@@ -7,10 +7,10 @@ def load_device(module,
                 **kwargs
                ):
     mod = load_device_module(module)
-    #FIXME - this is a hack to get the dependency devices in the kwargs dict, should be explicit
-    devices = kwargs.pop('devices', None)
-    if not devices is None:
-        kwargs.update(devices)
+#    #FIXME - this is a hack to get the dependency devices in the kwargs dict, should be explicit
+#    devices = kwargs.pop('devices', None)
+#    if not devices is None:
+#        kwargs.update(devices)
     try:
         dev = mod.get_interface(**kwargs)
     except:

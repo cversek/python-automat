@@ -23,7 +23,7 @@ class Configuration(ConfigObj):
     def __init__(self, config_filepath):
         #load all the configuration file
         ConfigObj.__init__(self, config_filepath)
-        self['config_filepath']  = config_filepath  
+        self['config_filepath']  = config_filepath
         #get information from the system at run time
         self._load_system_params()
         #setup paths
@@ -106,12 +106,15 @@ class Configuration(ConfigObj):
         except KeyError:
             config_filepath = self['config_filepath']
             raise ValueError, "the device with handle '%s' has not been specified in the 'devices' section of the config_file: '%s'" % (handle, config_filepath)
-        #scan the settings for device dependencies and load recursively
-        devices = settings.get('devices',{})
-        for left_handle,right_handle in devices.items():
+        #scan the settings for subdevice dependencies and load recursively
+        subdevices = settings.get('subdevices',{})
+        for left_handle,right_handle in subdevices.items():
+            #print "@@@ *** loading dependent subdevice: %s" % left_handle
             dev = self.load_device(right_handle)
-            devices[left_handle] = dev
-        settings['devices'] = devices            
+            subdevices[left_handle] = dev
+        settings['subdevices'] = subdevices
+        #print "@@@ *** finished loading dependent devices"
+        #print "@@@ *** settings:", settings
         return settings
         
 

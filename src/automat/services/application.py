@@ -216,15 +216,23 @@ class ShellApplication(ApplicationBase):
 #            app.start()
 #        except ImportError: #FIXME support older versions
         try:
-            #first try new style >= 0.12 interactive shell
-            from IPython.frontend.terminal.embed import InteractiveShellEmbed
+            
+            InteractiveShellEmbed = None
+            try:
+                from IPython.terminal.embed import InteractiveShellEmbed
+            except ImportError:
+                #try somewhat new style >= 0.12 interactive shell
+                from IPython.frontend.terminal.embed import InteractiveShellEmbed
             #FIXME change made for ipython >= 0.13
             self._ipshell = InteractiveShellEmbed(
                                                   user_ns = self._user_ns,
                                                   banner1 = status_msg,    #FIXME change made for ipython >= 0.13
                                                  )
             if pylab_mode is True:
-                self._ipshell.enable_pylab()
+                try:
+                    self._ipshell.enable_pylab()
+                except ImportError:
+                    warn("pylab mode is not available unless python-matplotlib installed")
             self._ipshell.mainloop()
         except ImportError:
             #substitue old-style interactive shell

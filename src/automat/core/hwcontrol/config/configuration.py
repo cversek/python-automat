@@ -83,9 +83,15 @@ class Configuration(ConfigObj):
             timeout = mutex_settings.get('timeout', DEFAULT_MUTEX_TIMEOUT)
             mutex   = Mutex(name=name, default_timeout=timeout)
             self._device_mutexes[handle] = mutex
+        #check for alias
+        alias = settings.pop('alias', None)
+        #load the device and cache
         device = device_loader.load_device(**settings)
         device._mutex = mutex #attach the mutex
         self._device_cache[handle] = device
+        if not alias is None:
+            self._device_cache[alias] = device
+        
         return device
 
     def load_device_module(self, handle):

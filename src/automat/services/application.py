@@ -223,11 +223,17 @@ class ShellApplication(ApplicationBase):
             except ImportError:
                 #try somewhat new style >= 0.12 interactive shell
                 from IPython.frontend.terminal.embed import InteractiveShellEmbed
-            #FIXME change made for ipython >= 0.13
-            self._ipshell = InteractiveShellEmbed(
-                                                  user_ns = self._user_ns,
-                                                  banner1 = status_msg,    #FIXME change made for ipython >= 0.13
-                                                 )
+#            #FIXME change made for ipython >= 0.13
+#            self._ipshell = InteractiveShellEmbed(
+#                                            user_ns = self._user_ns,
+#                                            banner1 = status_msg,    #FIXME change made for ipython >= 0.13
+#                                           )
+            #FIXME change made for IPython 4.0.0 to fix tab-completion
+            self._ipshell = InteractiveShellEmbed.instance(
+                                            user_ns = self._user_ns,
+                                            banner1 = status_msg,    #FIXME change made for ipython >= 0.13
+                                           )
+
             if pylab_mode is True:
                 try:
                     self._ipshell.enable_pylab()

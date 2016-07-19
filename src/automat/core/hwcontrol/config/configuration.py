@@ -44,6 +44,10 @@ class Configuration(ConfigObj):
             self['user'] = os.getlogin()           #works on Unix compatible systems
         except AttributeError:
             self['user'] = os.environ['USERNAME']  #maybe works on Windows as well
+        except Exception as exc:
+            print("Warning: caught exception: %s" % exc)
+            self['user'] = None
+
    
     def _setup_paths(self):
         "configure the paths and create, if necessary"

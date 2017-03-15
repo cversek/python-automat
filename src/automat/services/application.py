@@ -91,8 +91,11 @@ class ApplicationBase(object):
         self.print_comment("Loading device '%s'..." % handle)
         try:
             device = self._config.load_device(handle)
-            self._devices[handle] = device   #cache the device
-            self.print_comment("    success.")
+            if not device is None:
+                self._devices[handle] = device   #cache the device
+                self.print_comment("    success.")
+            else:
+                self.print_comment("    failed.")
             return device
         except Exception, exc:
             settings = self._config['devices'].get(handle, None)

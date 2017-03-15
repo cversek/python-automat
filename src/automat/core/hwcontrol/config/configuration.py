@@ -87,10 +87,11 @@ class Configuration(ConfigObj):
         alias = settings.pop('alias', None)
         #load the device and cache
         device = device_loader.load_device(**settings)
-        device._mutex = mutex #attach the mutex
-        self._device_cache[handle] = device
-        if not alias is None:
-            self._device_cache[alias] = device
+        if not device is None:
+            device._mutex = mutex #attach the mutex
+            self._device_cache[handle] = device
+            if not alias is None:
+                self._device_cache[alias] = device
         
         return device
 

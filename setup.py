@@ -15,7 +15,7 @@ import platform, os, shutil
 
 PACKAGE_METADATA = {
     'name'         : 'automat',
-    'version'      : 'dev',
+    'version'      : '0.1.0',
     'author'       : "Craig Versek",
     'author_email' : "cversek@physics.umass.edu",
 }
@@ -33,7 +33,7 @@ LINUX_CONFIG_DIR = '/etc/Automat'
 def ask_yesno(prompt, default='y'):
     while True:
         full_prompt = prompt + "([y]/n): "
-        val = raw_input(full_prompt)
+        val = input(full_prompt)
         if val == "":
             val = default
         if val in ['y','Y']:
@@ -46,22 +46,22 @@ def ask_yesno(prompt, default='y'):
 
 def check_linux_gpib():
     try:
-        print "Checking for python-gpib...",
+        print("Checking for python-gpib...")
         import gpib
-        print " found"
+        print(" found")
         return True
     except ImportError:
-        print "\n\tWarning: python-gpib has not been installed, no GPIB support will be available.\n\tSee docs/GPIB_support.txt for more info."
+        print("\n\tWarning: python-gpib has not been installed, no GPIB support will be available.\n\tSee docs/GPIB_support.txt for more info.")
         return False
 
 def check_pyserial():
     try:
-        print "Checking for pyserial...",
+        print("Checking for pyserial...")
         import serial
-        print " found"
+        print(" found")
         return True
     except ImportError:
-        print "\n\tWarning: pyserial has not been installed."
+        print("\n\tWarning: pyserial has not been installed.")
         val = ask_yesno("Should setuptools try to download an install this package?")
         if val:
             INSTALL_REQUIRES.append('pyserial')
@@ -72,11 +72,11 @@ def check_pyserial():
 # MAIN
 ###############################################################################
 if __name__ == "__main__":
-    print "*"*80
+    print("*"*80)
     #check the system 
     system = platform.system()
-    print "Detected system: %s" % system 
-    print "Running hardware compatibility check:"
+    print("Detected system: %s" % system) 
+    print("Running hardware compatibility check:")
     if system == 'Linux':
         #FIXME - this is a hack to get python path working with 'sudo python setup.py...'
         import sys
@@ -97,10 +97,10 @@ if __name__ == "__main__":
     if system == 'Linux' or system == 'Darwin':
         config_dirpath = LINUX_CONFIG_DIR
         if not os.path.isdir(config_dirpath):
-            print "creating config directory: %s" % config_dirpath
+            print("creating config directory: %s" % config_dirpath)
             os.mkdir(config_dirpath)
         else:
-            print "config directory already exists: %s" % config_dirpath
+            print("config directory already exists: %s" % config_dirpath)
     elif system == 'Windows':
         from win32com.shell import shellcon, shell
         appdata_path   = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
@@ -113,18 +113,18 @@ if __name__ == "__main__":
     #autogenerate the package information file
     
     pkg_info_filename   = os.sep.join((MAIN_PACKAGE_PATH,'pkg_info.py'))
-    print "Writing the package info file: %s" % pkg_info_filename
+    print("Writing the package info file: %s" % pkg_info_filename)
     pkg_info_file       = open(pkg_info_filename,'w')
     pkg_info_file.write("metadata = %r\n" % PACKAGE_METADATA)
     pkg_info_file.write("platform = %r"   % platform_data)
     pkg_info_file.close()
 
-    raw_input("press 'Enter' to continue...")
-    print "*"*80
+    #input("press 'Enter' to continue...")
+    print("*"*80)
 
     #the rest is controlled by setuptools
-    from ez_setup import use_setuptools
-    use_setuptools()
+    #from ez_setup import use_setuptools
+    #use_setuptools()
 
     from setuptools import setup, find_packages
 

@@ -89,23 +89,23 @@ class handleCrash(object):
     def __call__(self, *args, **kwargs):
         try:
             self.func(*args, **kwargs)
-        except SystemExit, exc:
+        except SystemExit as exc:
             sys.exit(0)
         except:
             error_type, exc, tb = sys.exc_info()
             msg = str(exc)
-            print '*'*80
-            print "A fatal error has occured: %s" % error_type 
-            print msg
-            print '*'*80
-            print "Writing crash info to '%s'." % CRASHDUMP_FILENAME 
+            print('*'*80)
+            print("A fatal error has occured: %s" % error_type) 
+            print(msg)
+            print('*'*80)
+            print("Writing crash info to '%s'." % CRASHDUMP_FILENAME) 
             crashdump_file = open(CRASHDUMP_FILENAME,'w')
             import traceback
             traceback.print_exc(file=crashdump_file)
             crashdump_file.close()
-            print "Aborting program."
-            print "press 'enter' key to continue..."
-            raw_input()
+            print("Aborting program.")
+            print("press 'enter' key to continue...")
+            input()
             try:
                 sys.exit(exc.err_code)
             except AttributeError:

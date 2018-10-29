@@ -69,7 +69,7 @@ class NISpyParser(BaseParser):
                                     int(m2.group(2)),
                                     float(m2.group(3))]
         else:
-            raise ValueError, "timing doesn't match the regex:\n%s" % timing
+            raise ValueError("timing doesn't match the regex:\n%s" % timing)
         #status byte info
         status_line = line_group[3].strip()
         m = self.StatusByteRegex.match(status_line)
@@ -145,4 +145,4 @@ if __name__ == "__main__":
     istream = open(fname,'r')
     parser = NISpyParser(istream, debug = True)
     for rec in parser:
-        print rec
+        print(rec)

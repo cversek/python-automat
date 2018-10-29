@@ -45,7 +45,7 @@ class Configuration(ConfigObj):
         except AttributeError:
             self['user'] = os.environ['USERNAME']  #maybe works on Windows as well
         except Exception as exc:
-            print("Warning: caught exception: %s" % exc)
+            print(("Warning: caught exception: %s" % exc))
             self['user'] = None
 
    
@@ -53,7 +53,7 @@ class Configuration(ConfigObj):
         "configure the paths and create, if necessary"
         try:
             paths_dict = self['paths']
-            for pathvar, path in paths_dict.items():
+            for pathvar, path in list(paths_dict.items()):
                 #regularize the path
                 path = fullpath(path)            
                 if not os.path.isdir(path):
@@ -73,7 +73,7 @@ class Configuration(ConfigObj):
     def load_device(self, handle):
         "load a device and it's dependencies (recursively)"
         #avoid loading the device again if it is in the cache
-        if self._device_cache.has_key(handle):
+        if handle in self._device_cache:
 #            mutex = self._device_mutexes.get(handle)
 #            if not mutex is None:
 #                mutex.acquire()
@@ -110,16 +110,16 @@ class Configuration(ConfigObj):
             devices = self['devices']
         except KeyError:
             config_filepath = self['config_filepath']
-            raise ValueError, "no 'devices' section speficied in the config_file: '%s'" % config_filepath
+            raise ValueError("no 'devices' section speficied in the config_file: '%s'" % config_filepath)
         try:
             #get the loaded settings if they exist
             settings = devices[handle].dict()  #deepcopy into a dict object, so weird things don't happen
         except KeyError:
             config_filepath = self['config_filepath']
-            raise ValueError, "the device with handle '%s' has not been specified in the 'devices' section of the config_file: '%s'" % (handle, config_filepath)
+            raise ValueError("the device with handle '%s' has not been specified in the 'devices' section of the config_file: '%s'" % (handle, config_filepath))
         #scan the settings for subdevice dependencies and load recursively
         subdevices = settings.get('subdevices',{})
-        for left_handle,right_handle in subdevices.items():
+        for left_handle,right_handle in list(subdevices.items()):
             #print "@@@ *** loading dependent subdevice: %s" % left_handle
             dev = self.load_device(right_handle)
             subdevices[left_handle] = dev
@@ -131,7 +131,7 @@ class Configuration(ConfigObj):
 
     def load_controller(self, handle):
         #avoid loading the controller again if it is in the cache
-        if self._controller_cache.has_key(handle): 
+        if handle in self._controller_cache: 
             #print "loading controller '%s' from cache" % handle        
             return self._controller_cache[handle]
         #print "loading controller '%s' from settings" % handle        
@@ -164,23 +164,23 @@ class Configuration(ConfigObj):
             controllers_section = self['controllers']
         except KeyError:
             config_filepath = self['config_filepath']
-            raise ValueError, "no 'controllers' section speficied in the config_file: '%s'" % config_filepath
+            raise ValueError("no 'controllers' section speficied in the config_file: '%s'" % config_filepath)
         try:
             #get the loaded settings if they exist
             settings = controllers_section[handle].dict() #get a deepcopy dict object so weird things don't happen
         except KeyError:
             config_filepath = self['config_filepath']
-            raise ValueError, "the controller with handle '%s' has not been specified in the 'controllers' section of the config_file: '%s'" % (handle, config_filepath)    
+            raise ValueError("the controller with handle '%s' has not been specified in the 'controllers' section of the config_file: '%s'" % (handle, config_filepath))    
         #scan the settings for device dependencies and load recursively
         devices = settings.get('devices',None)
         if not devices is None:
-            for left_handle,right_handle in devices.items():
+            for left_handle,right_handle in list(devices.items()):
                 dev = self.load_device(right_handle)
                 devices[left_handle] = dev
         #scan for other controller dependencies and load recursively
         subcontrollers = settings.get('controllers',None)
         if not subcontrollers is None:
-            for left_handle,right_handle in subcontrollers.items():
+            for left_handle,right_handle in list(subcontrollers.items()):
                 con = self.load_controller(right_handle)
                 subcontrollers[left_handle] = con                 
         return settings

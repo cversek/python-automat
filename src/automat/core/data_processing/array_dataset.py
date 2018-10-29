@@ -2,7 +2,7 @@
 from collections import OrderedDict 
 import numpy as np
 
-from datasets import DataSet
+from .datasets import DataSet
 ###############################################################################
 class ArrayDataSet(DataSet):
     """A class which indexes sequences by names
@@ -10,12 +10,12 @@ class ArrayDataSet(DataSet):
     def __init__(self, fields=None, names=None, metadata=None):
         #create default names if not specified
         if fields is None and names is None:
-            raise ValueError, "must specify at least fields or names"
+            raise ValueError("must specify at least fields or names")
         elif names is None:
-            names = ["f%d" % i for i in xrange(len(fields))]
+            names = ["f%d" % i for i in range(len(fields))]
         elif fields is None:
             empty = []
-            fields = np.array([empty[:] for x in xrange(len(names))]).transpose()
+            fields = np.array([empty[:] for x in range(len(names))]).transpose()
         else:
             assert len(names) == len(fields)
         #ensure that fields are an array

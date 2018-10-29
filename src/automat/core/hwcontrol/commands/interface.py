@@ -13,9 +13,9 @@ class CommandInterfaceMixIn:
             resp = self._exchange(cmd.cmd_query())
             resp = cmd.filter_resp(resp)
             return resp
-        except Exception, exc: #something bad happened
+        except Exception as exc: #something bad happened
             if attempt >= self.max_query_retry:
-                raise IOError, "exceed the maximum number of retries (%d) for a command query\nlast exception:%s" % (self.max_query_retry, exc)        
+                raise IOError("exceed the maximum number of retries (%d) for a command query\nlast exception:%s" % (self.max_query_retry, exc))        
             else: #try again recursively
                 return self._cmd_query(cmd_name,attempt = attempt + 1)                    
         

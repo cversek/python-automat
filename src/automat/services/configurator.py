@@ -24,16 +24,16 @@ class ConfiguratorService(object):
                     cfg = Configuration(fn)
                     configs.append(cfg)
                 except ValueError:  #FIXME transfer these to automat.config errors
-                    print "automat.config error: %s" % fn
+                    print("automat.config error: %s" % fn)
                 except ConfigObjError:
-                    print "configobj error: %s" % fn
+                    print("configobj error: %s" % fn)
         self.configs = configs
 
     def request_config_dialog(self):
         self._find_config_files()
-        import Tkinter, Pmw
+        import tkinter, Pmw
         #build the GUI interface as a seperate window
-        win = Tkinter.Tk()
+        win = tkinter.Tk()
         Pmw.initialise(win)
         win.withdraw()
         win.wm_title(WINDOW_TITLE)
@@ -48,16 +48,16 @@ class ConfiguratorService(object):
         return cfg_gui.selection
 
 
-import Tkinter, Pmw
+import tkinter, Pmw
 from automat.core.gui.text_widgets import TextDisplayBox
 WINDOW_TITLE = "Automat Configurator"
 TEXT_BUFFER_SIZE         = 10*2**10 #ten kilobytes
 TEXT_DISPLAY_TEXT_HEIGHT = 40
 TEXT_DISPLAY_TEXT_WIDTH  = 80
 
-class ConfiguratorGUI(Tkinter.Frame):
+class ConfiguratorGUI(tkinter.Frame):
         def __init__(self, parent, configurator_service):
-            Tkinter.Frame.__init__(self, parent)
+            tkinter.Frame.__init__(self, parent)
             self.configurator_service = configurator_service
             choices = [cfg['config_filepath'] for cfg in self.configurator_service.configs]
             # Add some contents to the dialog
@@ -74,7 +74,7 @@ class ConfiguratorGUI(Tkinter.Frame):
                                        )
                     
             self.text_display  = TextDisplayBox(self,text_height=TEXT_DISPLAY_TEXT_HEIGHT, text_width=TEXT_DISPLAY_TEXT_WIDTH, buffer_size = TEXT_BUFFER_SIZE)
-            self.select_button = Tkinter.Button(text='Select',command = self._select_button_command)
+            self.select_button = tkinter.Button(text='Select',command = self._select_button_command)
 
             self.menu.pack(side='top', anchor='nw')        
             self.text_display.pack(expand = True, fill = 'both', padx = 4, pady = 4)
@@ -84,14 +84,14 @@ class ConfiguratorGUI(Tkinter.Frame):
             self.menu.invoke(index=0)
             
         def _select_button_command(self):
-            print "Selection made: %s" % self.menu.getvalue()
+            print("Selection made: %s" % self.menu.getvalue())
             root = self._root()
             root.destroy()
             
         def _option_menu_command(self, option):
             choice_index = self.menu.index(Pmw.SELECT)
             self.selection = self.configurator_service.configs[choice_index]
-            print "Current choice index %d, option: %s" % (choice_index,option)
+            print("Current choice index %d, option: %s" % (choice_index,option))
             self.text_display.clear_text()
             try:
                 #read in the raw file and display it in the text box

@@ -2,7 +2,7 @@ import os
 import bz2, gzip, zipfile
 #use the faster library if available
 try: 
-    import cPickle as pickle 
+    import pickle as pickle 
 except ImportError:
     import pickle
 
@@ -27,12 +27,12 @@ class PickleFile(object):
         try:    
             stream = FILE_TYPES[file_type](filename,mode)
         except KeyError:
-            raise IOError, "unkown extension '%s'" % file_type
+            raise IOError("unkown extension '%s'" % file_type)
         self.unpickler = pickle.Unpickler(stream)
     def __iter__(self):
         #make object iterable
         return self
-    def next(self):
+    def __next__(self):
         try:
             return self.unpickler.load()
         except EOFError:
@@ -49,4 +49,4 @@ if __name__ == "__main__":
     import sys
     PF = PickleFile(sys.argv[1])
     for event in PF:
-        print event
+        print(event)

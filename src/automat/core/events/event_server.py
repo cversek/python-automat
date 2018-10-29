@@ -1,4 +1,4 @@
-import socket, sys, time, datetime, cPickle, Queue, thread
+import socket, sys, time, datetime, pickle, queue, _thread
 from automat.core.threads.interruptible_thread import InterruptibleThread
 
 ###############################################################################
@@ -22,7 +22,7 @@ def reserve_port(port = None):
         
         
 ###############################################################################
-from event_caching import EventCachingProcess
+from .event_caching import EventCachingProcess
 
 class EventServer(InterruptibleThread):
     def __init__(self,
@@ -39,7 +39,7 @@ class EventServer(InterruptibleThread):
         self.event_file   = event_file
         if log_func is None:
             def log_func(text):
-                print text
+                print(text)
         self.log_func = log_func #logging function
         #create a socket which accepts python objects and bind to port
         if sock_obj is None:
@@ -78,7 +78,7 @@ class EventServer(InterruptibleThread):
             try:         
                 connection, address = sock_obj.accept()
                 log("server connected by client at %s" % (address,))
-                thread.start_new(handle_client, (connection,address))
+                _thread.start_new(handle_client, (connection,address))
             except socket.timeout: #continue with next iteration
                 pass      
         
@@ -87,13 +87,13 @@ class EventServer(InterruptibleThread):
         #get a cursor to shared memory event history
         event_cache_cursor = self.event_caching_process.get_cursor() 
         #send all the previous events
-        connection.send(cPickle.dumps(('PAST_EVENTS',event_cache_cursor.next())))
+        connection.send(pickle.dumps(('PAST_EVENTS',next(event_cache_cursor))))
         #keep track of new events arriving, and send them over the socket
         try:
             for events in event_cache_cursor:    
                 if events:
                     for event in events:
-                        connection.send(cPickle.dumps(event))
+                        connection.send(pickle.dumps(event))
                 #pause for a bit to conserve processor resources
                 stop_event.wait(0.1) 
         except socket.error:
@@ -111,8 +111,8 @@ class EventServer(InterruptibleThread):
 if __name__ == "__main__":
     myHost = ""
     myPort = 50007
-    EVENT_QUEUE = Queue.Queue() #to passback events
-    ERROR_QUEUE = Queue.Queue() #to collect errors
+    EVENT_QUEUE = queue.Queue() #to passback events
+    ERROR_QUEUE = queue.Queue() #to collect errors
     EVENT_QUEUE.put("one")
     EVENT_QUEUE.put("two")
     server = EventServer(event_queue = EVENT_QUEUE,
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         while True:
             EVENT_QUEUE.put(datetime.datetime.now())
             time.sleep(1.0)    
-    thread.start_new(add_event, ())
+    _thread.start_new(add_event, ())
     #must fix this test code
     #try:
     #    server.main_loop()

@@ -64,7 +64,7 @@ def circle_fit(X,Y):
             p_var = covar.diagonal()  #get the variances
             p_err = numpy.sqrt(p_var)
         else:
-            p_err = tuple( None for p in xrange(len(p_fit)) )
+            p_err = tuple( None for p in range(len(p_fit)) )
     #bundle information in a dictionary
     fit_info = {}
     fit_info['success'] = success
@@ -85,9 +85,9 @@ class FittableFunction(object):
     args, varargs, varkwargs, defaults = inspect.getargspec(func)
     #restrict the allowed function definitions
     if not varargs is None:
-      raise ValueError, "cannot use varargs"
+      raise ValueError("cannot use varargs")
     elif not varkwargs is None:
-      raise ValueError, "cannot use varkwargs"
+      raise ValueError("cannot use varkwargs")
     self.func   = func
     self.desc   = inspect.getdoc(func) or "<FittableFunction object>"
     self.pnames = args[1:] #exclude the 'x' variable
@@ -97,10 +97,10 @@ class FittableFunction(object):
           -> (params as dict, errors as dict)
     """
     #check to see if parameter names are valid
-    opt_pnames = free_params.keys() + fixed_params.keys()
+    opt_pnames = list(free_params.keys()) + list(fixed_params.keys())
     for pname in opt_pnames:
         if not pname in self.pnames:
-            raise ValueError, "Invalid parameter name '%s'" % pname
+            raise ValueError("Invalid parameter name '%s'" % pname)
     #convert possible sequences to numpy arrays
     X = numpy.array(X)
     Y = numpy.array(Y)
@@ -109,7 +109,7 @@ class FittableFunction(object):
     all_params.update(free_params)
     all_params.update(fixed_params)
     #get the free parameters as a sorted sequence
-    fpnames = free_params.keys()
+    fpnames = list(free_params.keys())
     fpnames.sort()
 
     #create the error function closure
@@ -132,7 +132,7 @@ class FittableFunction(object):
     reduced_chisqr = (err*err).sum()/ndf
     #compute the errors on all the parameters
     errors = {}
-    pvars = [covar[i][i] for i in xrange(len(covar))]  #get the variances
+    pvars = [covar[i][i] for i in range(len(covar))]  #get the variances
     for pname, pvar in zip(fpnames,pvars):
         errors[pname] = numpy.sqrt(reduced_chisqr*pvar)
     return (all_params, errors, reduced_chisqr)
@@ -180,7 +180,7 @@ class Parameters(dict):
         return dict( [(pname, self[pname]) for pname in self.fixed_pset] )
     def fix_param(self,pname,val=None):
         if not pname in self.whole_pset:
-            raise TypeError, "not a valid parameter name: %s" % pname
+            raise TypeError("not a valid parameter name: %s" % pname)
         #remove from the free set if it's there
         single_pset = set([pname])
         self.free_pset  -= single_pset
@@ -189,13 +189,13 @@ class Parameters(dict):
             self[pname] = val
     def init_param(self,pname,val):
         if not pname in self.whole_pset:
-            raise TypeError, "not a valid parameter name: %s" % pname
+            raise TypeError("not a valid parameter name: %s" % pname)
         self[pname] = val
     def set_fixed_params(self,fixed_params):
         newfixed_pset = set(fixed_params.keys())
         for pname in newfixed_pset:
             if not pname in self.whole_pset:
-                raise TypeError, "not a valid parameter name: %s" % pname
+                raise TypeError("not a valid parameter name: %s" % pname)
         #declare the previously fixed parameters free
         freed_pset = self.fixed_pset - newfixed_pset
         #the new free parameter set is has the newfixed elements subtracted 
@@ -208,13 +208,13 @@ class Parameters(dict):
         #if no initial values for the free parameters are specified, 
         #use the last values
         #check that all parameter names are valid
-        for pname in init_params.keys():
+        for pname in list(init_params.keys()):
             if pname not in self.whole_pset:
-                raise TypeError, "not a valid free parameter name: %s" % pname 
+                raise TypeError("not a valid free parameter name: %s" % pname) 
         #merge the parameter initialization into the params dict
         self.update(init_params)
         #replace any remaining None values with the init_default
-        for pname, val in self.items():
+        for pname, val in list(self.items()):
             if val is None:
                 self[pname] = init_default
         
@@ -338,8 +338,8 @@ class FittingInterface(object):
             such that post fit interpolation may be easily performed.
         """
         #None values may be present if the fit has not yet been performed
-        if None in self.params.values():
-            raise Exception, "the must call 'fit' before getting the fitted function"
+        if None in list(self.params.values()):
+            raise Exception("the must call 'fit' before getting the fitted function")
         else:
             func = self.fittable.func
             def _fitted(X):
@@ -352,12 +352,12 @@ class FittingInterface(object):
         buff.append("Fitting Interface:")
         buff.append("  Fit Function: \"%s\"" % self.fittable.desc)
         buff.append("  Free Parameters:")
-        for pname, val in params.get_free_params().items():
+        for pname, val in list(params.get_free_params().items()):
             buff.append("    %s: %f" % (pname,val))
         fixed_params = params.get_fixed_params()
         if fixed_params:
             buff.append("  Fixed Parameters:")
-            for pname, val in fixed_params.items():
+            for pname, val in list(fixed_params.items()):
                 buff.append("    - %s = %f" % (pname,val))
         else:
             buff.append("  Fixed Parameters: ~")
@@ -374,15 +374,15 @@ if __name__ == "__main__":
   #generate some test data
   A = 1.23
   B = 2.76
-  print "Generating data from model A*exp(k*x) + B:"
-  print "A =",A
-  print "B =",B
+  print("Generating data from model A*exp(k*x) + B:")
+  print("A =",A)
+  print("B =",B)
   X = numpy.linspace(1,10,20)
   Noise = numpy.random.normal(0,0.25*A,len(X))
   Y = A*X + B
-  print "X = ", X
-  print "Y = ", Y
-  print "Fitting data to same model:"
+  print("X = ", X)
+  print("Y = ", Y)
+  print("Fitting data to same model:")
   #define the fitting model just as a normal python function
   #where the docstring is taking to be the representation
   def model(x,A,B):
@@ -402,12 +402,12 @@ if __name__ == "__main__":
   
   FI = FittingInterface(model,free_params={'A':1.0},fixed_params = {'B':2.7,'Q':0})
   p, errs, reduced_chisqr = FI.fit(X,Y)
-  print "fitted parameters:"
-  for pname in p.keys():
+  print("fitted parameters:")
+  for pname in list(p.keys()):
     pstr = "%s = %f" % (pname,p[pname])
     err = errs.get(pname,None)
     if err is not None:
       pstr += " +/- %f" % (err)
-    print pstr
-  print "Chi-sqr/ndf = %f" % reduced_chisqr
+    print(pstr)
+  print("Chi-sqr/ndf = %f" % reduced_chisqr)
   

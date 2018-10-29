@@ -1,11 +1,11 @@
-import Tkinter
-from Tkinter import Frame, Button, Label
+import tkinter
+from tkinter import Frame, Button, Label
 from Pmw import Dialog
 
 #package local
-from validation import Validator
-from list_entry import ScrolledListEntry
-from entry_form import EntryForm
+from .validation import Validator
+from .list_entry import ScrolledListEntry
+from .entry_form import EntryForm
 ###############################################################################
 DEFAULT_LABELS_TEXT = {
     'title': "Values from Range",
@@ -18,7 +18,7 @@ def integer_range(lb, rb, step):
     if lb > rb:
         step = -step
     #understood to be inclusive range
-    return range(lb,rb+step,step)
+    return list(range(lb,rb+step,step))
 ###############################################################################
 class RangeDialog(Dialog):
     def __init__(self,
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     
 
     # Initialise Tkinter and Pmw.
-    import Tkinter    
+    import tkinter    
     import Pmw
     #create a test window    
     root = Pmw.initialise()    
@@ -102,8 +102,8 @@ if __name__ == "__main__":
     RD.withdraw()
     def test_dialog():
         action, values = RD.activate()
-        print "action:", action
-        print "values:", values
-    launch_button = Tkinter.Button(root,text="Test Dialog",command=test_dialog)
+        print("action:", action)
+        print("values:", values)
+    launch_button = tkinter.Button(root,text="Test Dialog",command=test_dialog)
     launch_button.pack()
     root.mainloop()

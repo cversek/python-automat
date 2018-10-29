@@ -62,7 +62,7 @@ def load_controller(module,
                                       )
         controller.module_path = module    #cache this dynamic information
     except:
-        print "Error in module '%s'" % mod  #add some tracing info to the error
+        print("Error in module '%s'" % mod)  #add some tracing info to the error
         raise
     return controller
 

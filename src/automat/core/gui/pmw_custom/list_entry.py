@@ -1,10 +1,10 @@
 
 
-import Tkinter
+import tkinter
 import Pmw
 import string
 
-from validation import Validator
+from .validation import Validator
 
 ###############################################################################
 
@@ -15,7 +15,7 @@ DEFAULT_ENTRY_WIDTH = 4
 DEFAULT_NUM_VISIBLE_ENTRIES = 10
 
 
-class ScrolledListEntry(Tkinter.Frame):
+class ScrolledListEntry(tkinter.Frame):
     """ Megawidget for convenient validated entry of a list numbers
     """
     def __init__(self, 
@@ -40,7 +40,7 @@ class ScrolledListEntry(Tkinter.Frame):
         self.delete_key       = delete_key
         
         #configure the gui compenents
-        Tkinter.Frame.__init__(self, parent)
+        tkinter.Frame.__init__(self, parent)
         self.sf = Pmw.ScrolledFrame(self, usehullsize=True)
         self.entry_frame = self.sf.interior()
         
@@ -119,7 +119,7 @@ class ScrolledListEntry(Tkinter.Frame):
         #remove the last entryfield, unless only one left
         if len(self.entryfields) > 1:
             #get the indices of fields to shift up
-            moved_indices = range(index,len(self.entryfields)-1)        
+            moved_indices = list(range(index,len(self.entryfields)-1))        
             
             #shift all the vaules up
             for i in moved_indices:
@@ -140,7 +140,7 @@ class ScrolledListEntry(Tkinter.Frame):
     def insert(self, index, place='below'):
         
         #get the indices of fields to shift down
-        moved_indices = range(index,len(self.entryfields))        
+        moved_indices = list(range(index,len(self.entryfields)))        
         moved_indices.reverse()
         
         #add a new field to the end
@@ -203,7 +203,7 @@ class ScrolledListEntry(Tkinter.Frame):
             e.component('entry').config(state='normal')                              
 
 if __name__ == "__main__":
-    INIT_VALUES = range(200,20,-20)
+    INIT_VALUES = list(range(200,20,-20))
     VALIDATE    = {"validator":"integer", 'max':200,'min':40, 'maxstrict':False,'minstrict':False}
     # Initialise Tkinter and Pmw.
     root = Pmw.initialise()

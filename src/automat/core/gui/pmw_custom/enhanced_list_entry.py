@@ -1,11 +1,11 @@
-import Tkinter
-from Tkinter import Frame, Button, Label
+import tkinter
+from tkinter import Frame, Button, Label
 import Pmw
 
 import string
 #package local
-from validation import Validator
-from list_entry import ScrolledListEntry
+from .validation import Validator
+from .list_entry import ScrolledListEntry
 ###############################################################################
 class EnhancedListEntry(Frame):
     def __init__(self, 
@@ -105,7 +105,7 @@ class EnhancedListEntry(Frame):
 # TEST CODE
 ###############################################################################
 if __name__ == "__main__":
-    INIT_SETPOINTS = range(200,20,-20)
+    INIT_SETPOINTS = list(range(200,20,-20))
 
     SETPOINT_MIN = 40
     SETPOINT_MAX = 230
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     # Initialise Tkinter and Pmw
     import Pmw
     root = Pmw.initialise()
-    from range_dialog import RangeDialog
+    from .range_dialog import RangeDialog
     RD = RangeDialog(root,
                      validator = Validator(_min = 0, _max = 200, converter = int),
                      #first_value_default = 0,

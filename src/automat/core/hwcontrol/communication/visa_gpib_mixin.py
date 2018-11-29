@@ -3,7 +3,7 @@ import visa
 
 
 #Get the Base for all communications mixins
-from _base import BaseCommunicationsMixIn
+from ._base import BaseCommunicationsMixIn
 
 #specify the smallest time between sending a command and
 #noticing a response
@@ -61,7 +61,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
     self.gpib_name = gpib_name
     try:
       self.gpib = visa.instrument(gpib_name)
-    except visa.VisaIOError, exc:
+    except visa.VisaIOError as exc:
       msg = "failed to find device named '%s'" % self.gpib_name
       raise Error(exc,msg)
     self.EOL = EOL
@@ -72,7 +72,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
         # a dirty hack to prevent hangups
         # maybe we should poll the status byte?
         time.sleep(delay)
-    except visa.VisaIOError, err:
+    except visa.VisaIOError as err:
         msg = "could not write to device at gpib_name '%s'" % self.gpib_name
         raise Error(err, info = msg)
          
@@ -80,7 +80,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
     #chunk size is ignored but included for compatibility with linux_gpib_mixin
     try:
         return self.gpib.read()
-    except visa.VisaIOError, err:
+    except visa.VisaIOError as err:
         msg = "could not read from device at gpib_name '%s'" % self.gpib_name
         raise Error(err, info=msg)
   def _exchange(self, command):

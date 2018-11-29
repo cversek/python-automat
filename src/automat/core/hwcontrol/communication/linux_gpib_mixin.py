@@ -3,7 +3,7 @@ from Gpib import Gpib  #object oriented interface
 import time
 
 #Get the Base for all communications mixins
-from _base import BaseCommunicationsMixIn
+from ._base import BaseCommunicationsMixIn
 
 #specify the smallest time between sending a command and
 #noticing a response
@@ -62,7 +62,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
         self.gpib_name = gpib_name
         try:
             self.gpib = Gpib(gpib_name)
-        except GpibError, exc:
+        except GpibError as exc:
             msg = "failed to find device named '%s'" % self.gpib_name
             raise Error(exc,msg)
         #fix for older versions of Gpib
@@ -77,7 +77,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
             # a dirty hack to prevent hangups
             # maybe we should poll the status byte?
             time.sleep(delay)
-        except GpibError, err:
+        except GpibError as err:
             msg = "could not write to device at gpib_name '%s'" % self.gpib_name
             raise Error(err, info = msg)
 
@@ -90,7 +90,7 @@ class GPIBCommunicationsMixIn(BaseCommunicationsMixIn):
                 if check_EOL(chunk,self.EOL):
                     buff = "".join(buff)
                     return buff.strip()
-        except GpibError, err:
+        except GpibError as err:
             msg = "could not read from device at gpib_name '%s'" % self.gpib_name
             raise Error(err, info=msg)
 

@@ -34,10 +34,10 @@ class DataSetCollection(object):
 
     def overwrite(self, dataset):
         if self.index < 0:
-            raise IndexError, "cannot overwrite the start index -1"
+            raise IndexError("cannot overwrite the start index -1")
         self.__setitem__(self.index, dataset)
 
-    def next(self):
+    def __next__(self):
         if self.index < len(self.datasets) - 1:
             self.index += 1
             return self.datasets[self.index]

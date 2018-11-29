@@ -1,5 +1,5 @@
 import gc
-from Tkinter import *
+from tkinter import *
 
 
 import matplotlib

@@ -14,7 +14,7 @@ def load_device(module,
     try:
         dev = mod.get_interface(**kwargs)
     except:
-        print "Error in module '%s'" % mod  #add some tracing info to the error
+        print("Error in module '%s'" % mod)  #add some tracing info to the error
         raise
     return dev
 

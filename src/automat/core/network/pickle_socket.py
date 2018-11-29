@@ -1,4 +1,4 @@
-import cPickle
+import pickle
 import socket
 
 class UnknownObject(object):
@@ -15,8 +15,8 @@ class PickleSocket:
         #make objects for dumping/loading python objects 
         self.wfile     = self.sock.makefile('w')
         self.rfile     = self.sock.makefile('r')
-        self.pickler   = cPickle.Pickler(self.wfile)
-        self.unpickler = cPickle.Unpickler(self.rfile)
+        self.pickler   = pickle.Pickler(self.wfile)
+        self.unpickler = pickle.Unpickler(self.rfile)
     def bind(self,*args,**kwargs):
         self.sock.bind(*args,**kwargs)
     def get_port(self):
@@ -51,5 +51,5 @@ if __name__ == "__main__":
     PS = PickleSocket()
     PS.connect(('localhost',50007))
     while True:
-        print PS.load()
+        print(PS.load())
 

@@ -1,7 +1,7 @@
 ###############################################################################
 #Standard Python provided
-import Tkinter as tk
-import ttk
+import tkinter as tk
+import tkinter.ttk
 #Standard or substitute
 OrderedDict = None
 try:
@@ -18,7 +18,7 @@ DEFAULT_WINDOW_TITLE = "Automat GUI Control"
 
 ###############################################################################
 #replacement dialog box, since Pmw.MessageDialog appears to mysteriously segfault
-import Dialog
+import tkinter.dialog
 
 def launch_MessageDialog(title, message_text, buttons = ('OK',), bitmap='', default=0):
     d = tk.Dialog.Dialog(title=title, text = message_text, bitmap=bitmap, default=default, strings=buttons)

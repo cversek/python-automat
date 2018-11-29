@@ -1,4 +1,4 @@
-import socket, sys, time, datetime, Queue, cPickle
+import socket, sys, time, datetime, queue, pickle
 from automat.core.threads.interruptible_thread import InterruptibleThread
 WAIT_DELAY = 0.100 #100 ms
 ###############################################################################
@@ -8,7 +8,7 @@ class EventCacheCursor(object):
         self.cursor_index = 0
     def __iter__(self):
         return self
-    def next(self):
+    def __next__(self):
         #get all new events
         events = self.event_cache[self.cursor_index:]
         #advance the cursor
@@ -28,7 +28,7 @@ class EventCachingProcess(InterruptibleThread):
     def event_callback(self, event):
         "overload this function to process events as they come in"
         if not self.event_file is None:
-            cPickle.dump(event, self.event_file)
+            pickle.dump(event, self.event_file)
             self.event_file.flush()
         return event   
     
@@ -51,7 +51,7 @@ class EventCachingProcess(InterruptibleThread):
                     event = event_callback(event)
                     #update the event_cache list
                     event_cache.append(event)
-                except Exception, exc:
+                except Exception as exc:
                     import traceback
                     #event callback failure wrap in error event
                     error_type, exc, tb = sys.exc_info()
@@ -63,7 +63,7 @@ class EventCachingProcess(InterruptibleThread):
                     err_event = ('EVENT_CACHING_ERROR', content)
                     event_callback(err_event)
                     event_cache.append(err_event)  
-            except Queue.Empty:
+            except queue.Empty:
                 if stop_event.isSet():
                     return
                 #wait for items on Queue to arrive

@@ -15,7 +15,7 @@ import platform, os, shutil
 
 PACKAGE_METADATA = {
     'name'         : 'automat',
-    'version'      : 'dev',
+    'version'      : '0.1.0',
     'author'       : "Craig Versek",
     'author_email' : "cversek@physics.umass.edu",
 }
@@ -124,6 +124,7 @@ if __name__ == "__main__":
 
     #the rest is controlled by setuptools
     #FIXME not a good idea for conda
+
     #from ez_setup import use_setuptools
     #use_setuptools()
 

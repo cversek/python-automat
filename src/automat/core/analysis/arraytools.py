@@ -11,10 +11,10 @@ def gen_diff(X_stream,Y_stream,N):
     Y_stream = iter(Y_stream)
     #fill the sample queue
     S = deque()
-    for x in xrange(N):
-        S.append((X_stream.next(),Y_stream.next()))
+    for x in range(N):
+        S.append((next(X_stream),next(Y_stream)))
     #center the output on the window
-    for x in xrange(N//2):
+    for x in range(N//2):
         yield 0.0
     #compute the accumulators
     X,Y = numpy.array(S).transpose()
@@ -33,7 +33,7 @@ def gen_diff(X_stream,Y_stream,N):
             yield a
             #get next sample and adjust accumulators which might change
             S.popleft()
-            S.append((X_stream.next(),Y_stream.next()))
+            S.append((next(X_stream),next(Y_stream)))
             X,Y = numpy.array(S).transpose()
             Tx  = X.sum()
             Ty  = Y.sum()
@@ -42,7 +42,7 @@ def gen_diff(X_stream,Y_stream,N):
     except StopIteration:
         pass
     #center the output on the window
-    for x in xrange(N//2):
+    for x in range(N//2):
         yield 0.0    
 
 from numpy import linspace
@@ -81,8 +81,8 @@ def filter_close_neighbors(X, Y = None, tolerance = 1e-6):
 if __name__ == "__main__":
     A = 3.245*numpy.arange(11)
     D = leastsq_diff(A,N=5)
-    print len(A),A
-    print len(D),D
+    print(len(A),A)
+    print(len(D),D)
        
             
         

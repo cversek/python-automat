@@ -18,7 +18,7 @@ class CommandSet(object):
             self.add(command)
     def __setitem__(self, key, val):
         "Overload the []= operator for item setting to dissallow"
-        raise NotImplementedError, "use the add(command) method instead"
+        raise NotImplementedError("use the add(command) method instead")
     def __getitem__(self, key):
         "Overload the [] operator for item getting to look in both lookups"
         try:
@@ -34,16 +34,16 @@ class CommandSet(object):
             if command.name:
                 self.name_lookup[command.name] = command
         except NameError:
-            raise ValueError, "object does not export the Command interface"
+            raise ValueError("object does not export the Command interface")
     def cmds(self):
         "return the keys from the cmd_lookup"
-        return self.cmd_lookup.keys()
+        return list(self.cmd_lookup.keys())
     def names(self):
         "return the keys from the name_lookup"
-        return self.name_lookup.keys()
+        return list(self.name_lookup.keys())
     def match(self,string):
         "finds the first matching command and returns the CommandMatch object"
-        for cmd, command in self.cmd_lookup.items():
+        for cmd, command in list(self.cmd_lookup.items()):
             cm = command.match(string)
             if cm.match: #there is a match so send it back
                 return cm

@@ -1,5 +1,5 @@
 import re
-from command_match import CommandMatch
+from .command_match import CommandMatch
 
 class Error(Exception):
    """Base class for exceptions in this module."""
@@ -21,7 +21,7 @@ class Command(object):
         try:
             self.cmd  = spec['cmd']
             self.name = spec['name']
-        except KeyError, info:
+        except KeyError as info:
             raise Error("Command Specification Error:", info)
         #optional attributes
         self.set_pattern = spec.get('set_regex',None)
@@ -32,9 +32,9 @@ class Command(object):
         #make sure that range is numerical
         try:
             if sc == 'int':
-                self.set_range = map(int,self.set_range)
+                self.set_range = list(map(int,self.set_range))
             elif sc == 'float':
-                self.set_range = map(float,self.set_range)      
+                self.set_range = list(map(float,self.set_range))      
         except TypeError:
             pass #ignore failing in map command
         self.set_names   =  spec.get('set_names',{}) #a dictionary for filtering command values by name

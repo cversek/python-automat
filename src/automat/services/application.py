@@ -97,7 +97,7 @@ class ApplicationBase(object):
             else:
                 self.print_comment("    failed.")
             return device
-        except Exception, exc:
+        except Exception as exc:
             settings = self._config['devices'].get(handle, None)
             if settings is None:
                 error_msg = "missing settings for device in config file '%s'" % self._config['config_filepath']
@@ -120,7 +120,7 @@ class ApplicationBase(object):
                 self._controllers[name] = controller
                 #self.print_comment("    success.")
                 return controller
-            except Exception, exc:
+            except Exception as exc:
                 self.print_comment("    failed loading controller '%s' with exception: %s" % (name, exc))
                 if not self._ignore_device_errors:
                     raise exc
@@ -132,7 +132,7 @@ class ApplicationBase(object):
     def _abort_all_controllers(self):
         try:
             controllers_dict = self._config['controllers']
-            for name in controllers_dict.keys():
+            for name in list(controllers_dict.keys()):
                 controller = self._load_controller(name)
                 controller.abort()
         except KeyError:
@@ -157,13 +157,13 @@ class ShellApplication(ApplicationBase):
         self._load_all_controllers()
         
     def _load_all_devices(self):
-        for handle in self._config['devices'].keys():
+        for handle in list(self._config['devices'].keys()):
             self._load_device(handle)
 
     def _load_all_controllers(self):
         try:
             controllers_dict = self._config['controllers']
-            for name in controllers_dict.keys():
+            for name in list(controllers_dict.keys()):
                 self._load_controller(name)
         except KeyError:
             pass
@@ -181,11 +181,11 @@ class ShellApplication(ApplicationBase):
             try:
                 mod = __import__(modname)
                 self._user_ns[modname] = mod
-            except ImportError, exc:
+            except ImportError as exc:
                 warn("ignoring following error:\n---\n%s\n---" % exc, RuntimeWarning)
 
         #find the available devices
-        items = self._config._device_cache.items()
+        items = list(self._config._device_cache.items())
         items.sort()
         if items:
             status_msg.append("Available devices:")
@@ -195,7 +195,7 @@ class ShellApplication(ApplicationBase):
                 self._user_ns[name] = device
         
         #find the available controllers
-        items = self._config._controller_cache.items()
+        items = list(self._config._controller_cache.items())
         items.sort()
         if items:
             status_msg.append("Available controllers:")

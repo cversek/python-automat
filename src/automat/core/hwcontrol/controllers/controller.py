@@ -1,5 +1,5 @@
 ###############################################################################
-import Queue, threading
+import queue, threading
 from automat.core.threads.interruptible_thread import InterruptibleThread, AbortInterrupt
 #Standard or substitute
 OrderedDict = None
@@ -45,18 +45,18 @@ class BaseController(object):
         self.initialize_devices()
 
     def set_devices(self,**kwargs):
-        for key, val in kwargs.items():
-            if not self.devices.has_key(key):  
-                raise KeyError, "'%s' is not a valid subdevice name, must be one of %r" % (key, self.devices.keys())
+        for key, val in list(kwargs.items()):
+            if key not in self.devices:  
+                raise KeyError("'%s' is not a valid subdevice name, must be one of %r" % (key, list(self.devices.keys())))
             self.devices[key] = val
 
     def get_devices(self):
         return self.devices.copy()
 
     def set_controllers(self,**kwargs):
-        for key, val in kwargs.items():
-            if not self.controllers.has_key(key):  
-                raise KeyError, "'%s' is not a valid subcontroller name, must be one of %r" % (key, self.controllers.keys())
+        for key, val in list(kwargs.items()):
+            if key not in self.controllers:  
+                raise KeyError("'%s' is not a valid subcontroller name, must be one of %r" % (key, list(self.controllers.keys())))
             self.controllers[key] = val
 
     def get_controllers(self, name = None):
@@ -66,9 +66,9 @@ class BaseController(object):
             return self.controllers[name]
     
     def set_configuration(self, ignore_extra_fields = False, **kwargs):
-        for key, val in kwargs.items():
-            if not ignore_extra_fields and not self.configuration.has_key(key):  
-                raise KeyError, "'%s' is not a valid configuration field, must be one of %r" % (key, self.configuration.keys())
+        for key, val in list(kwargs.items()):
+            if not ignore_extra_fields and key not in self.configuration:  
+                raise KeyError("'%s' is not a valid configuration field, must be one of %r" % (key, list(self.configuration.keys())))
             self.configuration[key] = val
     
     def get_configuration(self):
@@ -89,20 +89,20 @@ class BaseController(object):
         
     def initialize_devices(self):
         "initialize all the devices, often can be overloaded in child class"
-        for handle, device in self.devices.items():
+        for handle, device in list(self.devices.items()):
             device.initialize()
         #cascade device initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
+        for handle, subcontroller in list(self.controllers.items()):
             subcontroller.initialize_devices()
         self._controller_mode_set.discard('devices_shutdown')                  
         self._controller_mode_set.add('devices_initialized')
     
     def shutdown_devices(self):
         "shutdown all the devices, often can be overloaded in child class"
-        for handle, device in self.devices.items():
+        for handle, device in list(self.devices.items()):
             device.shutdown()
         #cascade device initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
+        for handle, subcontroller in list(self.controllers.items()):
             subcontroller.shutdown_devices()    
         self._controller_mode_set.discard('devices_initialized')        
         self._controller_mode_set.add('devices_shutdown')
@@ -165,7 +165,7 @@ class Controller(BaseController):
                    ):
         self._require_controller_modes('object_initialized')
         if event_queue is None:
-            event_queue = Queue.Queue()
+            event_queue = queue.Queue()
         self.event_queue = event_queue
         if stop_event is None:
             stop_event = threading.Event()
@@ -180,7 +180,7 @@ class Controller(BaseController):
         #set daemonic property so thread does not block application exit
         self.thread.daemon = True
         #cascade thread initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
+        for handle, subcontroller in list(self.controllers.items()):
             subcontroller.thread_init(event_queue = event_queue, stop_event = stop_event, abort_event = abort_event)           
         self._controller_mode_set.discard('thread_shutdown')        
         self._controller_mode_set.add('thread_initialized')
@@ -191,7 +191,7 @@ class Controller(BaseController):
         except RuntimeError:  #when thread has not been run yet
             pass       
         #cascade device initializations into the controller dependencies
-        for handle, subcontroller in self.controllers.items():
+        for handle, subcontroller in list(self.controllers.items()):
             subcontroller.thread_shutdown()  
         self._controller_mode_set.discard('running_as_thread')
         self._controller_mode_set.discard('running_as_blocking_call')
@@ -234,7 +234,7 @@ class Controller(BaseController):
     # Run methods
     def main(self):
         "the main functionality, must be overloaded in child class"
-        raise NotImplementedError, "this abstract method must be overloaded in any child classes"
+        raise NotImplementedError("this abstract method must be overloaded in any child classes")
         
     def start(self):
         "run the 'main' method in a separate thread, this call should not block"

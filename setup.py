@@ -123,8 +123,9 @@ if __name__ == "__main__":
     print("*"*80)
 
     #the rest is controlled by setuptools
-    from ez_setup import use_setuptools
-    use_setuptools()
+    #FIXME not a good idea for conda
+    #from ez_setup import use_setuptools
+    #use_setuptools()
 
     from setuptools import setup, find_packages
 

@@ -1,4 +1,4 @@
-import core
-import services
-import substitutes
-import system_tools
+from . import core
+from . import services
+from . import substitutes
+from . import system_tools

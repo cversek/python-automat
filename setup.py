@@ -46,7 +46,7 @@ def ask_yesno(prompt, default='y'):
 
 def check_linux_gpib():
     try:
-        print("Checking for python-gpib...")
+        print("Checking for python-gpib...", end=' ')
         import gpib
         print(" found")
         return True
@@ -56,7 +56,7 @@ def check_linux_gpib():
 
 def check_pyserial():
     try:
-        print("Checking for pyserial...")
+        print("Checking for pyserial...", end=' ')
         import serial
         print(" found")
         return True
@@ -119,10 +119,12 @@ if __name__ == "__main__":
     pkg_info_file.write("platform = %r"   % platform_data)
     pkg_info_file.close()
 
-    #input("press 'Enter' to continue...")
+    input("press 'Enter' to continue...")
     print("*"*80)
 
     #the rest is controlled by setuptools
+    #FIXME not a good idea for conda
+
     #from ez_setup import use_setuptools
     #use_setuptools()
 

@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import serial #pyserial library
 from serial.serialutil import SerialException
 import time

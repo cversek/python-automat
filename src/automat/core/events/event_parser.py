@@ -10,11 +10,11 @@ class EventParser(object):
     def parse_all(self):
         return [val for val in self]
     
-    def next(self):
+    def __next__(self):
         event_stream = self.event_stream 
         feed = self.feed
         while True:
-            event = event_stream.next()
+            event = next(event_stream)
             obj = feed(event)
             if not obj is None:
                 #return any objects created during parsing

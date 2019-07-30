@@ -1,6 +1,6 @@
-from Tkinter import *
-import tkFileDialog
-import tkMessageBox
+from tkinter import *
+import tkinter.filedialog
+import tkinter.messagebox
 
 class FileBundler:
     def __init__(self, start_path="~", file_types=[("all files","*")]):
@@ -27,7 +27,7 @@ class FileBundler:
         BF.pack(side=TOP)
         win.mainloop()
     def add_file(self):
-        filename = tkFileDialog.askopenfilename(initialdir=self.start_path,
+        filename = tkinter.filedialog.askopenfilename(initialdir=self.start_path,
                                                 filetypes=self.file_types
                                                )
         self.list_box.insert(END,filename)

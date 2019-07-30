@@ -1,6 +1,6 @@
 import yaml
-import command
-import command_set
+from . import command
+from . import command_set
 import re
 
 def load(filename):

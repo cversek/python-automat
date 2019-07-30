@@ -3,7 +3,7 @@ try:
 except ImportError:
     from automat.substitutes.ordered_dict import OrderedDict
     
-from Tkinter import Frame, Label
+from tkinter import Frame, Label
 import Pmw
 import string
 
@@ -53,9 +53,9 @@ class EntryForm(Frame):
 
     def to_dict(self, filter_empty = False):
         if filter_empty:
-            return dict([(name,field.get()) for name, field in self.field_dict.items() if field.get() != ""])
+            return dict([(name,field.get()) for name, field in list(self.field_dict.items()) if field.get() != ""])
         else:
-            return dict([(name,field.get()) for name, field in self.field_dict.items()])
+            return dict([(name,field.get()) for name, field in list(self.field_dict.items())])
     
     def pack(self,*args,**kwargs):
         fields = self.fields

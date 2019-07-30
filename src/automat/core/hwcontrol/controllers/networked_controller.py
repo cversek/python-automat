@@ -1,7 +1,7 @@
 ###############################################################################
 import time, datetime, traceback, socket
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 try:
     from collections import OrderedDict
 except ImportError:
@@ -24,13 +24,13 @@ class ConnectionHandlerThread(Thread):
         
     def run(self):
         try:
-            print "CONNECTION AT %s STARTED" % (self.address,)
+            print("CONNECTION AT %s STARTED" % (self.address,))
             msg = self.connection.load()
-            print "FROM %s RECEIVED: %r" % (self.address,msg)
+            print("FROM %s RECEIVED: %r" % (self.address,msg))
             self.message_queue.put(msg)
         except socket.error:
             #connection dropped, end this thread
-            print "CONNECTION AT %s DROPPED" % (self.address,)
+            print("CONNECTION AT %s DROPPED" % (self.address,))
             return
         self.close()    
             

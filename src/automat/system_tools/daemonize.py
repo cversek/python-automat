@@ -27,7 +27,7 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         pid = os.fork( )
         if pid > 0:
             sys.exit(0) # Exit first parent.
-    except OSError, e:
+    except OSError as e:
         sys.stderr.write("fork #1 failed: (%d) %s\n" % (e.errno, e.strerror))
         sys.exit(1)
     # Decouple from parent environment.
@@ -39,7 +39,7 @@ def daemonize(stdin='/dev/null', stdout='/dev/null', stderr='/dev/null'):
         pid = os.fork( )
         if pid > 0:
             sys.exit(0) # Exit second parent.
-    except OSError, e:
+    except OSError as e:
         sys.stderr.write("fork #2 failed: (%d) %s\n" % (e.errno, e.strerror))
         sys.exit(1)
     # The process is now daemonized, redirect standard file descriptors.

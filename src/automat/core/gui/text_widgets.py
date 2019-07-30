@@ -1,4 +1,4 @@
-from Tkinter import *
+from tkinter import *
 
                        
 ###############################################################################
@@ -102,8 +102,8 @@ class TextDisplayBox(Frame):
 # TEST CODE
 ###############################################################################            
 if __name__ == "__main__":
-    sample_line = "".join([chr(i) for i in xrange(ord('A'),ord('z')) ])
-    sample_text = "\n".join([ ("(%d)" % i) + sample_line for i in xrange(80)])
+    sample_line = "".join([chr(i) for i in range(ord('A'),ord('z')) ])
+    sample_text = "\n".join([ ("(%d)" % i) + sample_line for i in range(80)])
     root = Tk()
     TB = TextDisplayBox(root)
     TB.pack()

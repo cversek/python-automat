@@ -1,9 +1,11 @@
+from __future__ import print_function
+
 import serial #pyserial library
 from serial.serialutil import SerialException
 import time
 
 #Get the Base for all communications mixins
-from _base import BaseCommunicationsMixIn
+from ._base import BaseCommunicationsMixIn
 
 ################################################################################
 #specify the smallest time between sending a command and
@@ -51,12 +53,12 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
                                       timeout=timeout,
                                       **kwargs
                                      )
-        except SerialException,details:
+        except SerialException as details:
             raise Error(details,"failed to find device on port '%s'" % port)
         try:
             if not self._ser.isOpen():
                 self._ser.open()
-        except SerialException,details:
+        except SerialException as details:
             raise Error(details,"failed to open serial connection")
     
     #Implementation of the Base Interface Helper methods
@@ -64,7 +66,7 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if append_EOL:
             command += self._EOL
         if self._debug:
-            print "--> " + command,
+            print("--> " + command, end=' ')
         self._ser.write(command) #add the end of line to the command
         # FIXME a dirty hack to prevent hangups
         # maybe we should poll somehow?
@@ -76,13 +78,13 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if strip_EOL:
             resp = resp.rstrip(self._EOL)
         if self._debug:
-            print "<-- " + resp
+            print("<-- " + resp)
         return resp
         
     def _read_char(self):
         c = self._ser.read(1)
         if self._debug:
-            print "<-- char: " + c
+            print("<-- char: " + c)
         return c
 
     def _exchange(self, command):

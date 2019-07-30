@@ -76,9 +76,9 @@ class Plot(object):
 
     def configure(self, **kwargs):
         """ Allow attributes of the plot to be changed"""
-        for key, val in kwargs.items():
-            if not self.attrs.has_key(key):
-                raise KeyError, "'%s' is not a valid attribute" % key
+        for key, val in list(kwargs.items()):
+            if key not in self.attrs:
+                raise KeyError("'%s' is not a valid attribute" % key)
             self.attrs[key] = val
                        
         
@@ -262,7 +262,7 @@ class MultiPlot(Plot):
         if attrs['use_errorbars']:
             yerrs = kwargs.get('yerrs',None)
             if yerrs is None:
-                raise ValueError, "no 'yerrs' specifed, even though 'use_errorbars' == True"
+                raise ValueError("no 'yerrs' specifed, even though 'use_errorbars' == True")
             assert len(yerrs) == N
         #plot each series------------------------------------------------------        
         for i in range(N):
@@ -352,9 +352,9 @@ class CompositePlot(object):
         self.attrs = attrs
     def configure(self, **kwargs):
         """ Allow attributes of the plot to be changed"""
-        for key, val in kwargs.items():
-            if not self.attrs.has_key(key):
-                raise KeyError, "'%' is not a valid attribute" % key
+        for key, val in list(kwargs.items()):
+            if key not in self.attrs:
+                raise KeyError("'%' is not a valid attribute" % key)
             self.attrs[key] = val
     def plot(self, Xs, Ys, labels = None, figure=None):
         """renders a composite plot of the data sequences Xs,Ys on figure 
@@ -370,7 +370,7 @@ class CompositePlot(object):
             labels = [None]*len(plots)
         figure = self._setup_figure(figure=figure)
         if (not subplots is None) and (not axes is None):
-            raise ValueError, 'Cannot specify both subplots and axes.'
+            raise ValueError('Cannot specify both subplots and axes.')
         elif not subplots is None:
             for plot,subplot,X,Y,_labels in zip(plots,subplots,Xs,Ys,labels):
                 plot.plot(X,Y, labels=_labels, figure=figure, subplot=subplot)
@@ -400,7 +400,7 @@ if __name__ == "__main__":
     plot_template = MultiPlot(topaxis_display = True,
                          topaxis_xlabel  = 'Top Axis',
                          topaxis_xticks  = X2,
-                         topaxis_xticklabels = map(str,2*X2),
+                         topaxis_xticklabels = list(map(str,2*X2)),
                          )
     fig = plot_template.plot([X],[Y])
     pylab.show()

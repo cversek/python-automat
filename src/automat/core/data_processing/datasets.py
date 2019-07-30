@@ -8,20 +8,20 @@ class DataSet(object):
     def __init__(self, fields=None, names=None, metadata=None):
         #create default names if not specified
         if fields is None and names is None:
-            raise ValueError, "must specify at least fields or names"
+            raise ValueError("must specify at least fields or names")
         elif names is None:
-            names = ["f%d" % i for i in xrange(len(fields))]
+            names = ["f%d" % i for i in range(len(fields))]
         elif fields is None:
             empty = []
-            fields = [empty[:] for x in xrange(len(names))]
+            fields = [empty[:] for x in range(len(names))]
         else:
             assert len(names) == len(fields)
         #ensure that fields are lists
-        fields = map(list,fields)
+        fields = list(map(list,fields))
         #cache the names to mantain ordering
         self._names = names
         #build the underlying data storage structure
-        self._data = dict(zip(names,fields))
+        self._data = dict(list(zip(names,fields)))
         #cache te metadata
         if not metadata:
             metadata = {}
@@ -39,7 +39,7 @@ class DataSet(object):
                 return self._data[name]
             except (IndexError, TypeError):
                 #reraise as a key error
-                raise KeyError, indx
+                raise KeyError(indx)
     
     def get(self, key, value = None):
         return self._data.get(key, value)
@@ -53,7 +53,7 @@ class DataSet(object):
     def get_records(self):
         "obtain the data as records, warning: the empty cells are filled out with None objects"
         fields = self.fields()
-        records = map(None,*fields)
+        records = list(*fields)
         return records
     
     def get_fields_fromnames(self,names):
@@ -75,7 +75,7 @@ class DataSet(object):
             field.append(item)
             
     def extend_records(self, records):
-        print len(records)
+        print(len(records))
         for record in records:
             self.append_record(record)
     
@@ -117,7 +117,7 @@ class DataSet(object):
         else:
             level += 1
             spaces = " "*indent*level
-            for key, val in md.items():
+            for key, val in list(md.items()):
                 md_lines.append("%s%s: %s" % (spaces,key,val))
             level -= 1        
         lines.extend(md_lines)
@@ -158,7 +158,7 @@ class DataSet(object):
         lines = []
         if embed_metadata:
             lines.append("%s<METADATA>" % comment_char)
-            for name, val in self._metadata.items():
+            for name, val in list(self._metadata.items()):
                 lines.append("%s%s: %s" % (comment_char,name,val) )
             lines.append("%s</METADATA>" % comment_char)
         if column_header:
@@ -167,7 +167,7 @@ class DataSet(object):
         #obtain the data as rows
         records = self.get_records()
         for rec in records:
-            data_strs = map(str,rec)
+            data_strs = list(map(str,rec))
             data_line = sep.join(data_strs)
             lines.append(data_line)
         return lines
@@ -180,7 +180,7 @@ class DataSet(object):
         """
         data = spec['Data']
         metadata = spec['Metadata']
-        names = data.keys()
+        names = list(data.keys())
         #fields are column data
         fields  = [data[name] for name in names]         
         dataset = cls(fields, names=names, metadata=metadata)

@@ -22,7 +22,7 @@ class StubDevice(object):
         
 class NullDevice(StubDevice):
     """A nothing device"""
-    def __nonzero__(self):
+    def __bool__(self):
         "implements a False truth value"
         return False
 

@@ -1,7 +1,7 @@
 from numpy import array, sqrt, cos, sin, linspace, histogram, hstack
 
-from arraytools import leastsq_diff, interp2d_scatter, filter_close_neighbors
-from curve_fitting import circle_fit
+from .arraytools import leastsq_diff, interp2d_scatter, filter_close_neighbors
+from .curve_fitting import circle_fit
 
 __DEBUG = True
 if __DEBUG:
@@ -139,9 +139,9 @@ if __name__ == "__main__":
 
     
     x0_est, y0_est, R_est = circle_detect(X,Y)
-    print "x0_est =",x0_est
-    print "y0_est =",y0_est
-    print "R_est =",R_est 
+    print("x0_est =",x0_est)
+    print("y0_est =",y0_est)
+    print("R_est =",R_est) 
     
     figure()
     plot(X,Y,'b.')

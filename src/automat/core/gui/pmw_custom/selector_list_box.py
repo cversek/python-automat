@@ -1,17 +1,17 @@
-import Tkinter
+import tkinter
 import Pmw
 LISTBOX_MAX_HEIGHT = 40
 
-class SelectorListBox(Tkinter.Frame):
+class SelectorListBox(tkinter.Frame):
     def __init__(self,
                  tk_parent,
                  items = [],
                  label_text = "",
                 ):
         #initialize as the toplevel window
-        Tkinter.Frame.__init__(self, tk_parent)
+        tkinter.Frame.__init__(self, tk_parent)
         self.items = items
-        self.label = Tkinter.Label(self, text=label_text)
+        self.label = tkinter.Label(self, text=label_text)
         #setup and configure the listbox component
         item_lens = [len(item) for item in items]
         item_lens += [len(label_text)]
@@ -30,7 +30,7 @@ class SelectorListBox(Tkinter.Frame):
         selections = self.listbox.curselection()
         return selections
 
-class TwoPanedSelectorListBox(Tkinter.Frame):
+class TwoPanedSelectorListBox(tkinter.Frame):
     def __init__(self,
                  tk_parent,
                  items1 = [],
@@ -39,7 +39,7 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
                  label2_text = "",
                 ):
         #initialize as the toplevel window
-        Tkinter.Frame.__init__(self, tk_parent)
+        tkinter.Frame.__init__(self, tk_parent)
         self.items1 = items1
         self.items2 = items2
         #setup and configure the listbox component
@@ -49,9 +49,9 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
         w = max(item_lens)
         h = min(max(len(items1),len(items2)),LISTBOX_MAX_HEIGHT)
         #build left panel
-        self.left_panel  =  Tkinter.Frame(self)
+        self.left_panel  =  tkinter.Frame(self)
         if label1_text:
-            label1 = Tkinter.Label(self.left_panel,  text=label1_text)
+            label1 = tkinter.Label(self.left_panel,  text=label1_text)
             label1.pack(side='top',  expand='no', fill='x')
         self.listbox1 = Pmw.ScrolledListBox(self.left_panel, 
                                            items = self.items1,
@@ -62,9 +62,9 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
         
         self.listbox1.pack(side='top',expand='yes', fill='y')
         #build right panel
-        self.right_panel = Tkinter.Frame(self)
+        self.right_panel = tkinter.Frame(self)
         if label2_text:
-            label2 = Tkinter.Label(self.right_panel, text=label2_text)
+            label2 = tkinter.Label(self.right_panel, text=label2_text)
             label2.pack(side='top',  expand='no', fill='x')
         self.listbox2 = Pmw.ScrolledListBox(self.right_panel, 
                                            items = self.items2,
@@ -74,7 +74,7 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
                                           )       
         self.listbox2.pack(side='top',expand='yes', fill='y')
         #construct a middle panel for extension use
-        self.middle_panel = Tkinter.Frame(self)
+        self.middle_panel = tkinter.Frame(self)
         
 
     def pack(self, *args, **kwargs):
@@ -82,16 +82,16 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
         self.left_panel.pack(side='left',fill='y')
         self.middle_panel.pack(side='left',fill='y')
         self.right_panel.pack(side='left',fill='y')
-        Tkinter.Frame.pack(self, *args, **kwargs)
+        tkinter.Frame.pack(self, *args, **kwargs)
         
     def get_selections1(self):
-        indices = map(int,self.listbox1.curselection())
-        items = map(self.items1.__getitem__,indices)
+        indices = list(map(int,self.listbox1.curselection()))
+        items = list(map(self.items1.__getitem__,indices))
         return indices, items
 
     def get_selections2(self):
-        indices = map(int,self.listbox2.curselection())
-        items = map(self.items2.__getitem__,indices)
+        indices = list(map(int,self.listbox2.curselection()))
+        items = list(map(self.items2.__getitem__,indices))
         return indices, items
 
     def copy_left_right(self):
@@ -107,13 +107,13 @@ class TwoPanedSelectorListBox(Tkinter.Frame):
     def delete_left(self):
         indices, items = self.get_selections1()
         keep_indices = set(indices) ^ set(range(len(self.items1)))
-        keep_items =  map(self.items1.__getitem__,keep_indices)
+        keep_items =  list(map(self.items1.__getitem__,keep_indices))
         self.items1 = keep_items
         self.listbox1.setlist(self.items1)
                       
     def delete_right(self):
         indices, items = self.get_selections2()
         keep_indices = set(indices) ^ set(range(len(self.items2)))
-        keep_items =  map(self.items2.__getitem__,keep_indices)
+        keep_items =  list(map(self.items2.__getitem__,keep_indices))
         self.items2 = keep_items
         self.listbox2.setlist(self.items2) 

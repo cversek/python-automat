@@ -14,11 +14,11 @@ class BaseParser(object):
     def process_all(self):
         return list(self)
     
-    def next(self):
+    def __next__(self):
         istream = self.istream 
         feed    = self.feed
         while True:
-            in_obj  = istream.next()
+            in_obj  = next(istream)
             out_obj = feed(in_obj)
             if not out_obj is None:
                 #return any objects created during parsing
@@ -41,11 +41,11 @@ class BaseParser(object):
                 #print the traceback
                 traceback.print_exc(file=sys.stdout)
                 #open the debugging console
-                print "decoder error caught, entering debugging mode..."
-                print "*"*80
-                print "obj_num: %d" % self.obj_num
-                print "in_obj: %s"  % in_obj
-                print "*"*80
+                print("decoder error caught, entering debugging mode...")
+                print("*"*80)
+                print("obj_num: %d" % self.obj_num)
+                print("in_obj: %s"  % in_obj)
+                print("*"*80)
                 from IPython.Shell import IPShellEmbed
                 ipshell = IPShellEmbed([])
                 ipshell('(Hit Ctrl-D to exit)')

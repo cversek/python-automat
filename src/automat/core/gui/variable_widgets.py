@@ -1,5 +1,5 @@
-from Tkinter import *
-import tkSimpleDialog
+from tkinter import *
+import tkinter.simpledialog
 
 class Field(Frame):
     def __init__(self,parent,name,value=None,label=None,var_type=StringVar,state=NORMAL):
@@ -57,7 +57,7 @@ class VariableForm(Frame):
         field = self.field_dict[key]
         field.set(val)
     def to_dict(self):
-        return dict([(name,field.get()) for name, field in self.field_dict.items()])
+        return dict([(name,field.get()) for name, field in list(self.field_dict.items())])
     def get_field_widget(self,name):
         return self.field_dict[name]
     def bind_field_override(self,field_name, binding,
@@ -67,7 +67,7 @@ class VariableForm(Frame):
         wm_title = 'Override Field'
         #create override dialog wrapper
         def override_func(event):
-            val = tkSimpleDialog.askfloat(wm_title,msg, parent=self)
+            val = tkinter.simpledialog.askfloat(wm_title,msg, parent=self)
             if not val is None:
                 field.set(val)
             #run the command function

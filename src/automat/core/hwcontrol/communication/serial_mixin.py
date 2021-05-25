@@ -32,18 +32,18 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
                  port,
                  baudrate = 9600,
                  timeout  = DEFAULT_TIMEOUT,
-                 EOL      = '\r\n',
+                 EOL      = b'\r\n',
                  delay    = DEFAULT_DELAY,
                  debug    = False,
                  **kwargs
                 ):
         #translate escaped string to ascii literals
-        if EOL == "\\n":
-            EOL = '\n'
-        elif EOL == '\\r':
-            EOL = '\r'
-        elif EOL == '\\r\\n':
-            EOL = '\r\n'    
+        if EOL == b"\\n":
+            EOL = b'\n'
+        elif EOL == b'\\r':
+            EOL = b'\r'
+        elif EOL == b'\\r\\n':
+            EOL = b'\r\n'    
         self._EOL = EOL
         self._delay = delay
         self._debug = debug
@@ -66,7 +66,7 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if append_EOL:
             command += self._EOL
         if self._debug:
-            print("--> " + command, end=' ')
+            print(b"--> " + command, end=' ')
         self._ser.write(command) #add the end of line to the command
         # FIXME a dirty hack to prevent hangups
         # maybe we should poll somehow?
@@ -78,13 +78,13 @@ class SerialCommunicationsMixIn(BaseCommunicationsMixIn):
         if strip_EOL:
             resp = resp.rstrip(self._EOL)
         if self._debug:
-            print("<-- " + resp)
+            print(b"<-- " + resp)
         return resp
         
     def _read_char(self):
         c = self._ser.read(1)
         if self._debug:
-            print("<-- char: " + c)
+            print(b"<-- char: " + c)
         return c
 
     def _exchange(self, command):

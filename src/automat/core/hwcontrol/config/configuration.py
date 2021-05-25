@@ -70,7 +70,7 @@ class Configuration(ConfigObj):
         #overload in child classes        
         pass    
              
-    def load_device(self, handle):
+    def load_device(self, handle, **kwargs):
         "load a device and it's dependencies (recursively)"
         #avoid loading the device again if it is in the cache
         if handle in self._device_cache:
@@ -79,6 +79,7 @@ class Configuration(ConfigObj):
 #                mutex.acquire()
             return self._device_cache[handle]
         settings = self._load_device_settings(handle)
+        settings.update((k,v) for k,v in kwargs.items() if v is not None) #merge in kwargs overloaded settings, except None values
         #implement a mutex if configured
         mutex = None
         mutex_settings = settings.pop('mutex', None)

@@ -107,6 +107,8 @@ class ApplicationBase(object):
                               handle    = handle, 
                               settings  = settings, 
                               exc       = exc)
+            import traceback
+            traceback.print_exc()
             if not self._ignore_device_errors:
                 raise exc
             else:

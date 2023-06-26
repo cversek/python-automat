@@ -17,7 +17,7 @@ PACKAGE_METADATA = {
     'name'         : 'automat',
     'version'      : '0.1.0',
     'author'       : "Craig Versek",
-    'author_email' : "cversek@physics.umass.edu",
+    'author_email' : "cversek@gmail.com",
 }
     
 PACKAGE_SOURCE_DIR = 'src'
@@ -119,7 +119,10 @@ if __name__ == "__main__":
     pkg_info_file.write("platform = %r"   % platform_data)
     pkg_info_file.close()
 
-    input("press 'Enter' to continue...")
+    try:
+        input("press 'Enter' to continue...")
+    except EOFError: # occurs using `pip install .`
+        pass #OK to skip
     print("*"*80)
 
     #the rest is controlled by setuptools

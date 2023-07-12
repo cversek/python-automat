@@ -29,18 +29,6 @@ INSTALL_REQUIRES = []
 LINUX_CONFIG_DIR = '/etc/Automat'
 
 
-
-def ask_yesno(prompt, default='y'):
-    while True:
-        full_prompt = prompt + "([y]/n): "
-        val = input(full_prompt)
-        if val == "":
-            val = default
-        if val in ['y','Y']:
-            return True
-        elif val in ['n','N']:
-            return False
-
 ###############################################################################
 # verify hardware dependencies
 
@@ -62,9 +50,6 @@ def check_pyserial():
         return True
     except ImportError:
         print("\n\tWarning: pyserial has not been installed.")
-        val = ask_yesno("Should setuptools try to download an install this package?")
-        if val:
-            INSTALL_REQUIRES.append('pyserial')
         return False
  
 
